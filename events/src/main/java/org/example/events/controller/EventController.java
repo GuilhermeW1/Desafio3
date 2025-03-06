@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/eventmanagement/v1")
+@RequestMapping("/api/events/v1")
 public class EventController {
 
     @Autowired
@@ -19,6 +19,7 @@ public class EventController {
 
     @PostMapping("/create-event")
     public ResponseEntity<EventResponseDto> create(@RequestBody EventCreateDto event) {
+        eventService.create(event);
         return ResponseEntity.ok(new EventResponseDto());
     }
 }
