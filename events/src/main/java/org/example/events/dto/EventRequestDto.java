@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class EventCreateDto implements Serializable {
+public class EventRequestDto implements Serializable {
     private String eventName;
     private LocalDateTime dateTime;
     private String cep;
 
-    public EventCreateDto() {}
+    public EventRequestDto() {}
 
-    public EventCreateDto(String eventName, LocalDateTime dateTime, String cep) {
+    public EventRequestDto(String eventName, LocalDateTime dateTime, String cep) {
         this.eventName = eventName;
         this.dateTime = dateTime;
         this.cep = cep;
@@ -44,7 +44,7 @@ public class EventCreateDto implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        EventCreateDto that = (EventCreateDto) o;
+        EventRequestDto that = (EventRequestDto) o;
         return Objects.equals(eventName, that.eventName);
     }
 

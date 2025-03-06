@@ -1,11 +1,13 @@
 package org.example.events.unittests;
 
 
-import org.example.events.dto.EventCreateDto;
+import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
+import org.example.events.entity.ViaCep;
 import org.example.events.repository.EventRepository;
 import org.example.events.service.EventService;
+import org.example.events.service.ViaCepService;
 import org.example.events.unittests.moks.MockEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,9 @@ public class EventServiceTest {
     private EventService service;
 
     @Mock
+    private ViaCepService viaCepService;
+
+    @Mock
     private EventRepository repository;
 
     @BeforeEach
@@ -47,8 +52,9 @@ public class EventServiceTest {
         Event entity = event.mockEvent();
 
         when(repository.save(any(Event.class))).thenReturn(entity);
+        when(viaCepService.getCepInfo(anyString())).thenReturn(new ViaCep());
 
-        EventCreateDto dto = event.mockEventCreateDto();
+        EventRequestDto dto = event.mockEventCreateDto();
 
         EventResponseDto result = service.create(dto);
 
@@ -65,16 +71,16 @@ public class EventServiceTest {
     @Test
     void updateEvent() {
         Event entity = event.mockEvent();
-        entity.setId("id");
 
         when(repository.save(any(Event.class))).thenReturn(entity);
+        when(viaCepService.getCepInfo(anyString())).thenReturn(new ViaCep());
+        EventRequestDto dto = event.mockEventCreateDto();
 
-        EventCreateDto dto = event.mockEventCreateDto();
-
-        var result = service.update(dto);
+        var result = service.update(dto, "uuid");
 
         assertNotNull(result);
         assertNotNull(result.getId());
+        assertEquals(entity.getId(), result.getId());
         assertEquals(entity.getEventName(), result.getEventName());
         assertEquals(entity.getCep(), result.getCep());
         assertEquals(entity.getDateTime(), result.getDateTime());

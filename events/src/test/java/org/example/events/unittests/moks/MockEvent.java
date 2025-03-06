@@ -1,6 +1,6 @@
 package org.example.events.unittests.moks;
 
-import org.example.events.dto.EventCreateDto;
+import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
 
@@ -40,8 +40,8 @@ public class MockEvent {
         return e;
     }
 
-    public EventCreateDto mockEventCreateDto() {
-        EventCreateDto dto = new EventCreateDto();
+    public EventRequestDto mockEventCreateDto() {
+        EventRequestDto dto = new EventRequestDto();
         dto.setEventName(DEFAULT_EVENT_NAME);
         dto.setDateTime(DEFAULT_DATE_TIME);
         dto.setCep(DEFAULT_CEP);
