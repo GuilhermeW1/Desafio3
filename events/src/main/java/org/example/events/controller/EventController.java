@@ -1,5 +1,6 @@
 package org.example.events.controller;
 
+import jakarta.validation.Valid;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.service.EventService;
@@ -17,7 +18,7 @@ public class EventController {
     private EventService eventService;
 
     @PostMapping("/create-event")
-    public ResponseEntity<EventResponseDto> create(@RequestBody EventRequestDto event) {
+    public ResponseEntity<EventResponseDto> create(@RequestBody @Valid EventRequestDto event) {
         return ResponseEntity.ok().body(eventService.create(event));
     }
 
@@ -37,7 +38,7 @@ public class EventController {
     }
 
     @PutMapping("update-event/{id}")
-    public ResponseEntity<EventResponseDto> updateEvent(@PathVariable String id, @RequestBody EventRequestDto event) {
+    public ResponseEntity<EventResponseDto> updateEvent(@PathVariable String id, @RequestBody @Valid EventRequestDto event) {
         return ResponseEntity.ok().body(eventService.update(event, id));
     }
 

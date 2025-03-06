@@ -5,6 +5,8 @@ import org.example.events.dto.EventResponseDto;
 import org.example.events.dto.mappers.EventMapper;
 import org.example.events.entity.Event;
 import org.example.events.entity.ViaCep;
+import org.example.events.exceptions.CepNotFoundException;
+import org.example.events.exceptions.EventNotFoundException;
 import org.example.events.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -26,8 +28,13 @@ public class EventService {
     public EventResponseDto create(EventRequestDto eventCreateDto) {
         Event event = new Event();
         String uuid = UUID.randomUUID().toString();
+        ViaCep viaCep = new ViaCep();
 
-        ViaCep viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
+        try {
+            viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
+        } catch (Exception e) {
+            throw new CepNotFoundException("Server could not find cep");
+        }
 
         event.setId(uuid);
         event.setEventName(eventCreateDto.getEventName());
@@ -48,7 +55,7 @@ public class EventService {
     }
 
     public EventResponseDto findById(String id) {
-        Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElse(null);
+        Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
         return EventMapper.toDto(event);
     }
 
@@ -64,8 +71,15 @@ public class EventService {
 
     public EventResponseDto update(EventRequestDto eventCreateDto, String id) {
         Event event = new Event();
+        ViaCep viaCep;
 
-        ViaCep viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
+        eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
+
+        try {
+            viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
+        } catch (Exception e) {
+            throw new CepNotFoundException("Server could not find cep");
+        }
 
         event.setId(id);
         event.setEventName(eventCreateDto.getEventName());
@@ -87,7 +101,8 @@ public class EventService {
     }
 
     public void delete(String id) {
-        Event event = eventRepository.findById(id).orElse(null);
+        //todo change this to not delete when are tikets linked with this event
+        Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
         event.setDeletedAt(LocalDateTime.now());
         event.setDeleted(true);
         eventRepository.save(event);
