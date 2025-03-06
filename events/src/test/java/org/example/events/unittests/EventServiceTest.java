@@ -1,6 +1,5 @@
 package org.example.events.unittests;
 
-
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
@@ -48,7 +47,7 @@ public class EventServiceTest {
     }
 
     @Test
-    void createEvent() {
+    public void createEvent() {
         Event entity = event.mockEvent();
 
         when(repository.save(any(Event.class))).thenReturn(entity);
@@ -74,6 +73,7 @@ public class EventServiceTest {
 
         when(repository.save(any(Event.class))).thenReturn(entity);
         when(viaCepService.getCepInfo(anyString())).thenReturn(new ViaCep());
+        when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
         EventRequestDto dto = event.mockEventCreateDto();
 
         var result = service.update(dto, "uuid");
@@ -92,7 +92,7 @@ public class EventServiceTest {
     @Test
     void findEvent() {
         Event entity = event.mockEvent();
-        when(repository.findById(anyString())).thenReturn(Optional.of(entity));
+        when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
 
         var result = service.findById(entity.getId());
 
@@ -110,7 +110,7 @@ public class EventServiceTest {
     void findAll() {
         List<Event> events = event.mockEventList();
 
-        when(repository.findAll()).thenReturn(events);
+        when(repository.findByIsDeletedFalse()).thenReturn(events);
 
         var result = service.findAll();
         assertNotNull(result);
