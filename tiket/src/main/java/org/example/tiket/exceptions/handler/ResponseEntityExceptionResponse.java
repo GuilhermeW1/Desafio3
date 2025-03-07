@@ -1,6 +1,7 @@
 package org.example.tiket.exceptions.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.tiket.exceptions.CpfNotFoundException;
 import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.ExceptionResponse;
 import org.example.tiket.exceptions.TicketNotFoundException;
@@ -24,13 +25,19 @@ public class ResponseEntityExceptionResponse {
     }
 
     @ExceptionHandler(TicketNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleCepNotFoundException(TicketNotFoundException e, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleTicketNotFoundException(TicketNotFoundException e, WebRequest request) {
         ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
     }
 
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleEventNotFoundException(EventNotFoundException e, WebRequest request) {
+        ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    }
+
+    @ExceptionHandler(CpfNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleCpfNotFoundException(EventNotFoundException e, WebRequest request) {
         ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
     }
