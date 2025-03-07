@@ -10,4 +10,5 @@ public interface TicketRepository extends MongoRepository<Ticket, String> {
     Optional<Ticket> findByAndIsDeletedFalse(String id);
     List<Ticket> findAllByIsDeletedFalse();
 
+    Optional<Ticket> findByCpfAndIsDeletedFalse(String cpf);
 }

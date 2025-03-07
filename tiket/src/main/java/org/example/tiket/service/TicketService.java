@@ -5,6 +5,7 @@ import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.dto.mappers.TicketMapper;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
+import org.example.tiket.exceptions.CpfNotFoundException;
 import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
@@ -26,6 +27,13 @@ public class TicketService {
     public TicketResponseDto findById(String id) {
         Ticket ticket = ticketRepository.findByAndIsDeletedFalse(id).orElseThrow(
                 () -> new TicketNotFoundException("Ticket with id " + id + " not found")
+        );
+        return TicketMapper.toDto(ticket);
+    }
+
+    public TicketResponseDto findByCpf(String cpf) {
+        Ticket ticket = ticketRepository.findByCpfAndIsDeletedFalse(cpf).orElseThrow(
+                () -> new CpfNotFoundException("Ticket with id " + cpf + " not found")
         );
         return TicketMapper.toDto(ticket);
     }
