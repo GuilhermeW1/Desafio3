@@ -1,16 +1,28 @@
 package org.example.tiket.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.br.CPF;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class TicketRequestDto {
+    @NotBlank
     private String ticketId;
+    @CPF
     private String cpf;
+    @NotBlank
     private String customerName;
+    @NotBlank
     private String customerMail;
+    @NotBlank
     private String eventId;
+    @NotBlank
     private String eventName;
+    @NotNull
     private BigDecimal BRLamount;
+    @NotNull
     private BigDecimal USDamount;
 
     public TicketRequestDto() {}

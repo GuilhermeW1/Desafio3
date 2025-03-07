@@ -5,6 +5,8 @@ import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.dto.mappers.TicketMapper;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
+import org.example.tiket.exceptions.EventNotFoundException;
+import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,21 +24,27 @@ public class TicketService {
     private EventService eventService;
 
     public TicketResponseDto findById(String id) {
-        Ticket ticket = ticketRepository.findByAndIsDeletedFalse(id).orElse(null);
+        Ticket ticket = ticketRepository.findByAndIsDeletedFalse(id).orElseThrow(
+                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
+        );
         return TicketMapper.toDto(ticket);
     }
 
     public TicketResponseDto create(TicketRequestDto ticketRequestDto) {
         Ticket ticket = new Ticket();
+        Event event;
 
-        Event event = eventService.getEvent(ticketRequestDto.getEventId());
+        try {
+            event = eventService.getEvent(ticketRequestDto.getEventId());
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
+        }
 
         String uuid = UUID.randomUUID().toString();
-
         ticket.setTicketId(uuid);
+
         ticket.setCustomerName(ticketRequestDto.getCustomerName());
         ticket.setCustomerMail(ticketRequestDto.getCustomerMail());
-        //todo: fazer a consulta do evento no servico
         ticket.setEvent(event);
         ticket.setCpf(ticketRequestDto.getCpf());
         ticket.setBRLamount(ticketRequestDto.getBRLamount());
@@ -52,9 +60,15 @@ public class TicketService {
 
     public TicketResponseDto update(TicketRequestDto ticketRequestDto, String id) {
 
-        Ticket ticket = ticketRepository.findByAndIsDeletedFalse(id).orElse(null);
-
-        Event event = eventService.getEvent(ticketRequestDto.getEventId());
+        Ticket ticket = ticketRepository.findByAndIsDeletedFalse(id).orElseThrow(
+                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
+        );
+        Event event;
+        try {
+            event = eventService.getEvent(ticketRequestDto.getEventId());
+        } catch (Exception e) {
+            throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
+        }
 
         ticket.setCustomerName(ticketRequestDto.getCustomerName());
         ticket.setCustomerMail(ticketRequestDto.getCustomerMail());
@@ -73,7 +87,9 @@ public class TicketService {
     }
 
     public void delete(String id) {
-        Ticket ticket = ticketRepository.findById(id).orElse(null);
+        Ticket ticket = ticketRepository.findById(id).orElseThrow(
+                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
+        );
         ticket.setDeleted(true);
         ticket.setDeletedAt(LocalDateTime.now());
         ticketRepository.save(ticket);
