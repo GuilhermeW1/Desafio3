@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class TicketRequestDto {
     private String ticketId;
+    private String cpf;
     private String customerName;
     private String customerMail;
     private String eventId;
@@ -14,14 +15,23 @@ public class TicketRequestDto {
 
     public TicketRequestDto() {}
 
-    public TicketRequestDto(String ticketId, String customerName, String customerMail, String eventId, String eventName, BigDecimal BRLamount, BigDecimal USDamount) {
+    public TicketRequestDto(String ticketId,String cpf, String customerName, String customerMail, String eventId, String eventName, BigDecimal BRLamount, BigDecimal USDamount) {
         this.ticketId = ticketId;
+        this.cpf = cpf;
         this.customerName = customerName;
         this.customerMail = customerMail;
         this.eventId = eventId;
         this.eventName = eventName;
         this.BRLamount = BRLamount;
         this.USDamount = USDamount;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getTicketId() {

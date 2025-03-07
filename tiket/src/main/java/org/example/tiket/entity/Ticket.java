@@ -1,10 +1,15 @@
 package org.example.tiket.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Document
 public class Ticket {
+    @Id
    private String ticketId;
    private String cpf;
    private String customerName;
