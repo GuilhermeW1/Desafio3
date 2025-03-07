@@ -1,0 +1,97 @@
+package org.example.tiket.dto;
+
+import org.example.tiket.entity.Event;
+
+import java.math.BigDecimal;
+import java.util.Objects;
+
+public class TicketResponseDto {
+    private String ticketId;
+    private String cpf;
+    private String customerName;
+    private String customerMail;
+    private Event event;
+    private BigDecimal BRLamount;
+    private BigDecimal USDamount;
+    private String status;
+
+    public TicketResponseDto() {}
+
+    public TicketResponseDto(String ticketId, String customerName, String customerMail, Event event, BigDecimal BRLamount, BigDecimal USDamount, String status) {
+        this.ticketId = ticketId;
+        this.customerName = customerName;
+        this.customerMail = customerMail;
+        this.event = event;
+        this.BRLamount = BRLamount;
+        this.USDamount = USDamount;
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public BigDecimal getUSDamount() {
+        return USDamount;
+    }
+
+    public void setUSDamount(BigDecimal USDamount) {
+        this.USDamount = USDamount;
+    }
+
+    public BigDecimal getBRLamount() {
+        return BRLamount;
+    }
+
+    public void setBRLamount(BigDecimal BRLamount) {
+        this.BRLamount = BRLamount;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public String getCustomerMail() {
+        return customerMail;
+    }
+
+    public void setCustomerMail(String customerMail) {
+        this.customerMail = customerMail;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(String ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        TicketResponseDto that = (TicketResponseDto) o;
+        return Objects.equals(ticketId, that.ticketId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(ticketId);
+    }
+}
