@@ -32,6 +32,7 @@ public class MockTicket {
     public TicketRequestDto mockTicketCreateDto() {
         TicketRequestDto ticket = new TicketRequestDto();
         ticket.setTicketId(TICKET_ID);
+        ticket.setCpf(CPF);
         ticket.setCustomerName(CUSTOMER_NAME);
         ticket.setCustomerMail(CUSTOMER_MAIL);
         ticket.setEventId(EVENT.getId());

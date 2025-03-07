@@ -4,7 +4,9 @@ import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Ticket;
 import org.example.tiket.repository.TicketRepository;
+import org.example.tiket.service.EventService;
 import org.example.tiket.service.TicketService;
+import org.example.tiket.unittests.moks.MockEvent;
 import org.example.tiket.unittests.moks.MockTicket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,9 @@ public class TicketServiceTest {
     @Mock
     private TicketRepository ticketRepository;
 
+    @Mock
+    private EventService eventService;
+
     @BeforeEach
     void setUp() {
         input = new MockTicket();
@@ -41,7 +46,7 @@ public class TicketServiceTest {
     void findById() {
         Ticket ticket = input.mockTicket();
 
-        when(ticketRepository.findById(anyString())).thenReturn(Optional.of(ticket));
+        when(ticketRepository.findByAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
 
         TicketResponseDto result = ticketService.findById("1");
 
@@ -58,6 +63,7 @@ public class TicketServiceTest {
         Ticket ticket = input.mockTicket();
 
         when(ticketRepository.save(any(Ticket.class))).thenReturn(ticket);
+        when(eventService.getEvent(anyString())).thenReturn(new MockEvent().mockEvent());
 
         TicketRequestDto dto = input.mockTicketCreateDto();
 
@@ -76,10 +82,12 @@ public class TicketServiceTest {
         Ticket ticket = input.mockTicket();
 
         when(ticketRepository.save(any(Ticket.class))).thenReturn(ticket);
+        when(eventService.getEvent(anyString())).thenReturn(new MockEvent().mockEvent());
+        when(ticketRepository.findByAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
 
         TicketRequestDto dto = input.mockTicketCreateDto();
 
-        TicketResponseDto result = ticketService.update(dto);
+        TicketResponseDto result = ticketService.update(dto, ticket.getTicketId());
 
         assertNotNull(result);
         assertEquals(result.getTicketId(), ticket.getTicketId());
@@ -87,6 +95,12 @@ public class TicketServiceTest {
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
         assertEquals(result.getBRLamount(), ticket.getBRLamount());
         assertEquals(result.getUSDamount(), ticket.getUSDamount());
+    }
+
+    void delete() {
+        Ticket ticket = input.mockTicket();
+        when(ticketRepository.findByAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
+        ticketService.delete(ticket.getTicketId());
     }
 
 }
