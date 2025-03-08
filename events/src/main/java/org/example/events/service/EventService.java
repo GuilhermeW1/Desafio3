@@ -4,9 +4,11 @@ import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.dto.mappers.EventMapper;
 import org.example.events.entity.Event;
+import org.example.events.entity.Ticket;
 import org.example.events.entity.ViaCep;
 import org.example.events.exceptions.CepNotFoundException;
 import org.example.events.exceptions.EventNotFoundException;
+import org.example.events.exceptions.TicketsAssociatedWithEventException;
 import org.example.events.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,9 @@ public class EventService {
 
     @Autowired
     private ViaCepService viaCepService;
+
+    @Autowired
+    private TicketService ticketService;
 
     public EventResponseDto create(EventRequestDto eventCreateDto) {
         Event event = new Event();
@@ -101,8 +106,12 @@ public class EventService {
     }
 
     public void delete(String id) {
-        //todo change this to not delete when are tikets linked with this event
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
+        //todo change checkTickets name to checkTicketsByEventId
+        List<Ticket> tickets = ticketService.checkTickets(id);
+        if (!tickets.isEmpty()) {
+            throw new TicketsAssociatedWithEventException("There are tickets associated with this event");
+        }
         event.setDeletedAt(LocalDateTime.now());
         event.setDeleted(true);
         eventRepository.save(event);

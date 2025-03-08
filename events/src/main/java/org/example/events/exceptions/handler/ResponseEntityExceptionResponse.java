@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.events.exceptions.CepNotFoundException;
 import org.example.events.exceptions.EventNotFoundException;
 import org.example.events.exceptions.ExceptionResponse;
+import org.example.events.exceptions.TicketsAssociatedWithEventException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -33,6 +34,12 @@ public class ResponseEntityExceptionResponse {
     public ResponseEntity<ExceptionResponse> handleEventNotFoundException(EventNotFoundException e, WebRequest request) {
         ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    }
+
+    @ExceptionHandler(TicketsAssociatedWithEventException.class)
+    public ResponseEntity<ExceptionResponse> handleTicketsAssociatedWithEventException(TicketsAssociatedWithEventException e, WebRequest request) {
+        ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
