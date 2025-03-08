@@ -37,7 +37,7 @@ public class ResponseEntityExceptionResponse {
     }
 
     @ExceptionHandler(CpfNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleCpfNotFoundException(EventNotFoundException e, WebRequest request) {
+    public ResponseEntity<ExceptionResponse> handleCpfNotFoundException(CpfNotFoundException e, WebRequest request) {
         ExceptionResponse res = new ExceptionResponse(LocalDate.now(), e.getMessage(), request.getDescription(false));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
     }

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/api/tickets/v1")
 @RestController
 public class TicketController {
@@ -31,7 +33,7 @@ public class TicketController {
     }
 
     @PutMapping("/update-ticket/{id}")
-    public ResponseEntity<TicketResponseDto> updateTicket(@PathVariable String id, @RequestBody TicketRequestDto ticketRequestDto) {
+    public ResponseEntity<TicketResponseDto> updateTicket(@PathVariable String id, @RequestBody @Valid TicketRequestDto ticketRequestDto) {
         return ResponseEntity.ok().body(ticketService.update(ticketRequestDto, id));
     }
 
@@ -42,7 +44,7 @@ public class TicketController {
     }
 
     @GetMapping("/check-tickets-by-event/{eventId}")
-    public ResponseEntity<TicketResponseDto> checkTicketsByEvent(@PathVariable String eventId) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<TicketResponseDto>> checkTicketsByEvent(@PathVariable String eventId) {
+        return ResponseEntity.ok().body(ticketService.findAllByEventId(eventId));
     }
 }
