@@ -4,12 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.br.CPF;
 
-import java.math.BigDecimal;
+import java.lang.Double;
 import java.util.Objects;
 
 public class TicketRequestDto {
-    @NotBlank
-    private String ticketId;
     @CPF
     private String cpf;
     @NotBlank
@@ -21,21 +19,21 @@ public class TicketRequestDto {
     @NotBlank
     private String eventName;
     @NotNull
-    private BigDecimal BRLamount;
+    private Double brlAmount;
     @NotNull
-    private BigDecimal USDamount;
+    private Double usdAmount;
 
-    public TicketRequestDto() {}
+    public TicketRequestDto() {
+    }
 
-    public TicketRequestDto(String ticketId,String cpf, String customerName, String customerMail, String eventId, String eventName, BigDecimal BRLamount, BigDecimal USDamount) {
-        this.ticketId = ticketId;
+    public TicketRequestDto(String cpf, String customerName, String customerMail, String eventId, String eventName, Double BRLamount, Double USDamount) {
         this.cpf = cpf;
         this.customerName = customerName;
         this.customerMail = customerMail;
         this.eventId = eventId;
         this.eventName = eventName;
-        this.BRLamount = BRLamount;
-        this.USDamount = USDamount;
+        this.brlAmount = BRLamount;
+        this.usdAmount = USDamount;
     }
 
     public String getCpf() {
@@ -44,14 +42,6 @@ public class TicketRequestDto {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
-    }
-
-    public String getTicketId() {
-        return ticketId;
-    }
-
-    public void setTicketId(String ticketId) {
-        this.ticketId = ticketId;
     }
 
     public String getCustomerName() {
@@ -86,31 +76,31 @@ public class TicketRequestDto {
         this.eventName = eventName;
     }
 
-    public BigDecimal getBRLamount() {
-        return BRLamount;
+    public Double getBrlAmount() {
+        return brlAmount;
     }
 
-    public void setBRLamount(BigDecimal BRLamount) {
-        this.BRLamount = BRLamount;
+    public void setBrlAmount(Double brlAmount) {
+        this.brlAmount = brlAmount;
     }
 
-    public BigDecimal getUSDamount() {
-        return USDamount;
+    public Double getUsdAmount() {
+        return usdAmount;
     }
 
-    public void setUSDamount(BigDecimal USDamount) {
-        this.USDamount = USDamount;
+    public void setUsdAmount(Double usdAmount) {
+        this.usdAmount = usdAmount;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         TicketRequestDto that = (TicketRequestDto) o;
-        return Objects.equals(ticketId, that.ticketId);
+        return Objects.equals(cpf, that.cpf);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(ticketId);
+        return Objects.hashCode(cpf);
     }
 }

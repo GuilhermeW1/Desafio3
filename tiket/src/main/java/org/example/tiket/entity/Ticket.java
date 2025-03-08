@@ -3,7 +3,7 @@ package org.example.tiket.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
+import java.lang.Double;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,8 +15,8 @@ public class Ticket {
    private String customerName;
    private String customerMail;
    private Event event;
-   private BigDecimal BRLamount;
-   private BigDecimal USDamount;
+   private Double BRLamount;
+   private Double USDamount;
    private String status;
    private LocalDateTime createdAt;
    private LocalDateTime updatedAt;
@@ -25,7 +25,7 @@ public class Ticket {
 
    public Ticket() {}
 
-    public Ticket(String ticketId, String cpf, String customerName, String customerMail, Event event, BigDecimal BRLamount, BigDecimal USDamount, String status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Boolean isDeleted) {
+    public Ticket(String ticketId, String cpf, String customerName, String customerMail, Event event, Double BRLamount, Double USDamount, String status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Boolean isDeleted) {
         this.ticketId = ticketId;
         this.cpf = cpf;
         this.customerName = customerName;
@@ -80,19 +80,19 @@ public class Ticket {
         this.event = event;
     }
 
-    public BigDecimal getBRLamount() {
+    public Double getBRLamount() {
         return BRLamount;
     }
 
-    public void setBRLamount(BigDecimal BRLamount) {
+    public void setBRLamount(Double BRLamount) {
         this.BRLamount = BRLamount;
     }
 
-    public BigDecimal getUSDamount() {
+    public Double getUSDamount() {
         return USDamount;
     }
 
-    public void setUSDamount(BigDecimal USDamount) {
+    public void setUSDamount(Double USDamount) {
         this.USDamount = USDamount;
     }
 

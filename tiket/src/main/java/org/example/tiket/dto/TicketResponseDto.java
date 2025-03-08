@@ -2,7 +2,7 @@ package org.example.tiket.dto;
 
 import org.example.tiket.entity.Event;
 
-import java.math.BigDecimal;
+import java.lang.Double;
 import java.util.Objects;
 
 public class TicketResponseDto {
@@ -11,13 +11,13 @@ public class TicketResponseDto {
     private String customerName;
     private String customerMail;
     private Event event;
-    private BigDecimal BRLamount;
-    private BigDecimal USDamount;
+    private Double BRLamount;
+    private Double USDamount;
     private String status;
 
     public TicketResponseDto() {}
 
-    public TicketResponseDto(String ticketId, String customerName, String customerMail, Event event, BigDecimal BRLamount, BigDecimal USDamount, String status) {
+    public TicketResponseDto(String ticketId, String customerName, String customerMail, Event event, Double BRLamount, Double USDamount, String status) {
         this.ticketId = ticketId;
         this.customerName = customerName;
         this.customerMail = customerMail;
@@ -35,19 +35,19 @@ public class TicketResponseDto {
         this.status = status;
     }
 
-    public BigDecimal getUSDamount() {
+    public Double getUSDamount() {
         return USDamount;
     }
 
-    public void setUSDamount(BigDecimal USDamount) {
+    public void setUSDamount(Double USDamount) {
         this.USDamount = USDamount;
     }
 
-    public BigDecimal getBRLamount() {
+    public Double getBRLamount() {
         return BRLamount;
     }
 
-    public void setBRLamount(BigDecimal BRLamount) {
+    public void setBRLamount(Double BRLamount) {
         this.BRLamount = BRLamount;
     }
 
