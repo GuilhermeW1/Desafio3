@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -171,15 +172,17 @@ public class TicketServiceTest {
     @Test
     void findByCpf() {
         Ticket ticket = input.mockTicket();
-        when(ticketRepository.findByCpfAndIsDeletedFalse("04798892017")).thenReturn(Optional.of(ticket));
-        TicketResponseDto result = ticketService.findByCpf("04798892017");
+        List<Ticket> tickets = Arrays.asList(ticket);
+
+        when(ticketRepository.findByCpfAndIsDeletedFalse("04798892017")).thenReturn(tickets);
+        List<TicketResponseDto> result = ticketService.findByCpf("04798892017");
 
         assertNotNull(result);
-        assertEquals(result.getTicketId(), ticket.getTicketId());
-        assertEquals(result.getCustomerName(), ticket.getCustomerName());
-        assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
-        assertEquals(result.getBRLamount(), 50.00);
-        assertEquals(result.getUSDamount(), 20.00);
+        assertEquals(result.get(0).getTicketId(), ticket.getTicketId());
+        assertEquals(result.get(0).getCustomerName(), ticket.getCustomerName());
+        assertEquals(result.get(0).getCustomerMail(), ticket.getCustomerMail());
+        assertEquals(result.get(0).getBRLamount(), 50.00);
+        assertEquals(result.get(0).getUSDamount(), 20.00);
     }
 
     @Test

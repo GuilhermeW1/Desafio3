@@ -28,7 +28,7 @@ public class TicketController {
     }
 
     @GetMapping("/get-ticket-by-cpf/{cpf}")
-    public ResponseEntity<TicketResponseDto> getTicketByCpf(@PathVariable String cpf) {
+    public ResponseEntity<List<TicketResponseDto>> getTicketByCpf(@PathVariable String cpf) {
         return ResponseEntity.ok().body(ticketService.findByCpf(cpf));
     }
 

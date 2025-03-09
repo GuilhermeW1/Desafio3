@@ -33,11 +33,9 @@ public class TicketService {
         return TicketMapper.toDto(ticket);
     }
 
-    public TicketResponseDto findByCpf(String cpf) {
-        Ticket ticket = ticketRepository.findByCpfAndIsDeletedFalse(cpf).orElseThrow(
-                () -> new CpfNotFoundException("Ticket with id " + cpf + " not found")
-        );
-        return TicketMapper.toDto(ticket);
+    public List<TicketResponseDto> findByCpf(String cpf) {
+        List<Ticket> tickets = ticketRepository.findByCpfAndIsDeletedFalse(cpf);
+        return tickets.stream().map(TicketMapper::toDto).collect(Collectors.toList());
     }
 
     public TicketResponseDto create(TicketRequestDto ticketRequestDto) {
