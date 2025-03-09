@@ -112,7 +112,7 @@ public class EventService {
     public void delete(String id) {
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
         //todo change checkTickets name to checkTicketsByEventId
-        List<Ticket> tickets = ticketService.checkTickets(id);
+        Page<Ticket> tickets = ticketService.checkTickets(id);
         if (!tickets.isEmpty()) {
             throw new TicketsAssociatedWithEventException("There are tickets associated with this event");
         }

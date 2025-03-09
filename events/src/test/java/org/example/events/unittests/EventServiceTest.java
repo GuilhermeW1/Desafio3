@@ -230,8 +230,9 @@ public class EventServiceTest {
     void deleteEvent() {
         Event entity = event.mockEvent();
         List<Ticket> emptyTickets = new ArrayList<>();
+        Page<Ticket> page = new PageImpl<>(emptyTickets, PageRequest.of(0, 10), emptyTickets.size());
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
-        when(ticketService.checkTickets(anyString())).thenReturn(emptyTickets);
+        when(ticketService.checkTickets(anyString())).thenReturn(page);
 
         service.delete(entity.getId());
 

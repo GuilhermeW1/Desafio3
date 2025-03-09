@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,19 +57,19 @@ public class TicketServiceTest {
     @Test
     void getTicketsByEventId() {
         List<Ticket> tickets = mockTickets();
-
-        when(ticketService.checkTickets(anyString())).thenReturn(tickets);
+        Page<Ticket> page = new PageImpl<>(tickets, PageRequest.of(0, 10), tickets.size());
+        when(ticketService.checkTickets(anyString())).thenReturn(page);
         var result = ticketService.checkTickets("teste");
 
         assertNotNull(result);
         assertEquals(3, tickets.size());
         for (int i = 0; i < 3; i++) {
-            assertEquals(tickets.get(i).getTicketId(), result.get(i).getTicketId());
-            assertEquals(tickets.get(i).getCustomerName(), result.get(i).getCustomerName());
-            assertEquals(tickets.get(i).getCustomerMail(), result.get(i).getCustomerMail());
-            assertEquals(tickets.get(i).getEvent().getId(), result.get(i).getEvent().getId());
-            assertEquals(tickets.get(i).getBRLamount(), result.get(i).getBRLamount());
-            assertEquals(tickets.get(i).getUSDamount(), result.get(i).getUSDamount());
+            assertEquals(tickets.get(i).getTicketId(), result.getContent().get(i).getTicketId());
+            assertEquals(tickets.get(i).getCustomerName(), result.getContent().get(i).getCustomerName());
+            assertEquals(tickets.get(i).getCustomerMail(), result.getContent().get(i).getCustomerMail());
+            assertEquals(tickets.get(i).getEvent().getId(), result.getContent().get(i).getEvent().getId());
+            assertEquals(tickets.get(i).getBRLamount(), result.getContent().get(i).getBRLamount());
+            assertEquals(tickets.get(i).getUSDamount(), result.getContent().get(i).getUSDamount());
         }
     }
 

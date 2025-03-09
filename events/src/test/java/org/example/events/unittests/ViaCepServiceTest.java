@@ -54,6 +54,5 @@ public class ViaCepServiceTest {
         assertEquals(address.getGia(), result.getGia());
         assertEquals(address.getDdd(), result.getDdd());
         assertEquals(address.getSiafi(), result.getSiafi());
-
     }
 }
