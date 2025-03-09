@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,9 +43,12 @@ public class EventController {
     @GetMapping("/get-all-events/sorted")
     public ResponseEntity<Page<EventResponseDto>> getAllEventsSorted(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction
     ) {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort.Direction dir = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(dir, "eventName");
+        Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok().body(eventService.findAllSorted(pageable));
     }
 

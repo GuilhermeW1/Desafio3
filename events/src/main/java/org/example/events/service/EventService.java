@@ -73,7 +73,7 @@ public class EventService {
     }
 
     public Page<EventResponseDto> findAllSorted(Pageable pageable) {
-        Page<Event> events = eventRepository.findByIsDeletedFalse(Sort.by(Sort.Direction.ASC, "eventName"), pageable) ;
+        Page<Event> events = eventRepository.findByIsDeletedFalse(pageable) ;
         Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
         return dtos;
     }

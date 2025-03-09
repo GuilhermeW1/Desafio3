@@ -12,5 +12,4 @@ import java.util.Optional;
 public interface EventRepository extends MongoRepository<Event, String> {
     Optional<Event> findByIdAndIsDeletedFalse(String id);
     Page<Event> findByIsDeletedFalse(Pageable pageable);
-    Page<Event> findByIsDeletedFalse(Sort sort, Pageable pageable);
 }
