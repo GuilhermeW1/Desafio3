@@ -22,7 +22,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,38 +177,51 @@ public class EventServiceTest {
     @Test
     void findAll() {
         List<Event> events = event.mockEventList();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Event> page = new PageImpl<>(events, pageable, events.size());
 
-        when(repository.findByIsDeletedFalse()).thenReturn(events);
+        when(repository.findByIsDeletedFalse(pageable)).thenReturn(page);
 
-        var result = service.findAll();
+        var result = service.findAll(pageable);
         assertNotNull(result);
-        assertEquals(result.size(), events.size());
+        assertEquals(events.size(), result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(events.size(), result.getContent().size());
+
         for (int i =0 ; i < events.size() ; i++) {
-            assertEquals(events.get(i).getEventName(), result.get(i).getEventName());
-            assertEquals(events.get(i).getCep(), result.get(i).getCep());
-            assertEquals(events.get(i).getDateTime(), result.get(i).getDateTime());
-            assertEquals(events.get(i).getCidade(), result.get(i).getCidade());
-            assertEquals(events.get(i).getUf(), result.get(i).getUf());
-            assertEquals(events.get(i).getLogradouro(), result.get(i).getLogradouro());
+            assertEquals(events.get(i).getEventName(), result.getContent().get(i).getEventName());
+            assertEquals(events.get(i).getCep(), result.getContent().get(i).getCep());
+            assertEquals(events.get(i).getDateTime(), result.getContent().get(i).getDateTime());
+            assertEquals(events.get(i).getCidade(), result.getContent().get(i).getCidade());
+            assertEquals(events.get(i).getUf(), result.getContent().get(i).getUf());
+            assertEquals(events.get(i).getLogradouro(), result.getContent().get(i).getLogradouro());
         }
     }
 
     @Test
     void findAllSorted() {
         List<Event> events = event.mockEventList();
+        Pageable pageable = PageRequest.of(0, 10);
         events.sort((e1, e2) -> e1.getEventName().compareTo(e2.getEventName()));
-        when(repository.findByIsDeletedFalse(Sort.by("eventName"))).thenReturn(events);
 
-        var result = service.findAllSorted();
+        Page<Event> page = new PageImpl<>(events, pageable, events.size());
+
+        when(repository.findByIsDeletedFalse(Sort.by("eventName"), pageable)).thenReturn(page);
+
+        var result = service.findAllSorted(pageable);
 
         assertNotNull(result);
+        assertEquals(events.size(), result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(events.size(), result.getContent().size());
+
         for (int i =0 ; i < events.size() ; i++) {
-            assertEquals(events.get(i).getEventName(), result.get(i).getEventName());
-            assertEquals(events.get(i).getCep(), result.get(i).getCep());
-            assertEquals(events.get(i).getDateTime(), result.get(i).getDateTime());
-            assertEquals(events.get(i).getCidade(), result.get(i).getCidade());
-            assertEquals(events.get(i).getUf(), result.get(i).getUf());
-            assertEquals(events.get(i).getLogradouro(), result.get(i).getLogradouro());
+            assertEquals(events.get(i).getEventName(), result.getContent().get(i).getEventName());
+            assertEquals(events.get(i).getCep(), result.getContent().get(i).getCep());
+            assertEquals(events.get(i).getDateTime(), result.getContent().get(i).getDateTime());
+            assertEquals(events.get(i).getCidade(), result.getContent().get(i).getCidade());
+            assertEquals(events.get(i).getUf(), result.getContent().get(i).getUf());
+            assertEquals(events.get(i).getLogradouro(), result.getContent().get(i).getLogradouro());
         }
     }
 
