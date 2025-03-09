@@ -10,6 +10,8 @@ import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,9 +35,9 @@ public class TicketService {
         return TicketMapper.toDto(ticket);
     }
 
-    public List<TicketResponseDto> findByCpf(String cpf) {
-        List<Ticket> tickets = ticketRepository.findByCpfAndIsDeletedFalse(cpf);
-        return tickets.stream().map(TicketMapper::toDto).collect(Collectors.toList());
+    public Page<TicketResponseDto> findByCpf(String cpf, Pageable pageable) {
+        Page<Ticket> tickets = ticketRepository.findByCpfAndIsDeletedFalse(cpf, pageable);
+        return tickets.map(TicketMapper::toDto);
     }
 
     public TicketResponseDto create(TicketRequestDto ticketRequestDto) {
@@ -102,8 +104,8 @@ public class TicketService {
         ticketRepository.save(ticket);
     }
 
-    public List<TicketResponseDto> findAllByEventId(String eventId) {
-        List<Ticket> tickets = ticketRepository.findAllByEvent_IdAndIsDeletedFalse(eventId);
-        return tickets.stream().map(TicketMapper::toDto).collect(Collectors.toList());
+    public Page<TicketResponseDto> findAllByEventId(String eventId, Pageable pageable) {
+        Page<Ticket> tickets = ticketRepository.findAllByEvent_IdAndIsDeletedFalse(eventId, pageable);
+        return tickets.map(TicketMapper::toDto);
     }
 }
