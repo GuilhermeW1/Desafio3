@@ -50,7 +50,7 @@ public class EventService {
         event.setUf(viaCep.getUf());
         event.setLogradouro(viaCep.getLogradouro());
         event.setCreatedAt(LocalDateTime.now());
-        event.setUpdatedAt(LocalDateTime.now());
+        event.setUpdatedAt(null);
         event.setDeletedAt(null);
         event.setDeleted(false);
 
@@ -78,7 +78,7 @@ public class EventService {
         Event event = new Event();
         ViaCep viaCep;
 
-        eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
+        var old = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
 
         try {
             viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
@@ -95,7 +95,7 @@ public class EventService {
         event.setCidade(viaCep.getLocalidade());
         event.setUf(viaCep.getUf());
         event.setLogradouro(viaCep.getLogradouro());
-        event.setCreatedAt(LocalDateTime.now());
+        event.setCreatedAt(old.getCreatedAt());
         event.setUpdatedAt(LocalDateTime.now());
         event.setDeletedAt(null);
         event.setDeleted(false);
