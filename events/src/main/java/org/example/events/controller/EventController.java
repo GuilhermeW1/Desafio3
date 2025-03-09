@@ -5,6 +5,9 @@ import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +31,21 @@ public class EventController {
     }
 
     @GetMapping("/get-all-events")
-    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        return ResponseEntity.ok().body(eventService.findAll());
+    public ResponseEntity<Page<EventResponseDto>> getAllEvents(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok().body(eventService.findAll(pageable));
     }
 
     @GetMapping("/get-all-events/sorted")
-    public ResponseEntity<List<EventResponseDto>> getAllEventsSorted() {
-        return ResponseEntity.ok().body(eventService.findAllSorted());
+    public ResponseEntity<Page<EventResponseDto>> getAllEventsSorted(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok().body(eventService.findAllSorted(pageable));
     }
 
     @PutMapping("update-event/{id}")

@@ -11,6 +11,8 @@ import org.example.events.exceptions.EventNotFoundException;
 import org.example.events.exceptions.TicketsAssociatedWithEventException;
 import org.example.events.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -64,14 +66,16 @@ public class EventService {
         return EventMapper.toDto(event);
     }
 
-    public List<EventResponseDto> findAll() {
-        List<Event> events = eventRepository.findByIsDeletedFalse();
-        return EventMapper.toListDto(events);
+    public Page<EventResponseDto> findAll(Pageable pageable) {
+        Page<Event> events = eventRepository.findByIsDeletedFalse(pageable);
+        Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
+        return dtos;
     }
 
-    public List<EventResponseDto> findAllSorted() {
-        List<Event> events = eventRepository.findByIsDeletedFalse(Sort.by(Sort.Direction.ASC, "eventName")) ;
-        return EventMapper.toListDto(events);
+    public Page<EventResponseDto> findAllSorted(Pageable pageable) {
+        Page<Event> events = eventRepository.findByIsDeletedFalse(Sort.by(Sort.Direction.ASC, "eventName"), pageable) ;
+        Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
+        return dtos;
     }
 
     public EventResponseDto update(EventRequestDto eventCreateDto, String id) {
