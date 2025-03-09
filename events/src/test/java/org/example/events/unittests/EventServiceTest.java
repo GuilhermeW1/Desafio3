@@ -201,12 +201,13 @@ public class EventServiceTest {
     @Test
     void findAllSorted() {
         List<Event> events = event.mockEventList();
-        Pageable pageable = PageRequest.of(0, 10);
+        Sort sort = Sort.by(Sort.Direction.ASC, "eventName");
+        Pageable pageable = PageRequest.of(0, 10, sort  );
         events.sort((e1, e2) -> e1.getEventName().compareTo(e2.getEventName()));
 
         Page<Event> page = new PageImpl<>(events, pageable, events.size());
 
-        when(repository.findByIsDeletedFalse(Sort.by("eventName"), pageable)).thenReturn(page);
+        when(repository.findByIsDeletedFalse(pageable)).thenReturn(page);
 
         var result = service.findAllSorted(pageable);
 
