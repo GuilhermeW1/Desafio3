@@ -18,6 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -172,26 +176,30 @@ public class TicketServiceTest {
     @Test
     void findByCpf() {
         Ticket ticket = input.mockTicket();
-        List<Ticket> tickets = Arrays.asList(ticket);
+        Ticket ticket2 = input.mockTicket();
+        List<Ticket> tickets = Arrays.asList(ticket, ticket2);
 
-        when(ticketRepository.findByCpfAndIsDeletedFalse("04798892017")).thenReturn(tickets);
-        List<TicketResponseDto> result = ticketService.findByCpf("04798892017");
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Ticket> page = new PageImpl<>(tickets, pageable, tickets.size());
+
+        when(ticketRepository.findByCpfAndIsDeletedFalse("04798892017", pageable)).thenReturn(page);
+        Page<TicketResponseDto> result = ticketService.findByCpf("04798892017", pageable);
 
         assertNotNull(result);
-        assertEquals(result.get(0).getTicketId(), ticket.getTicketId());
-        assertEquals(result.get(0).getCustomerName(), ticket.getCustomerName());
-        assertEquals(result.get(0).getCustomerMail(), ticket.getCustomerMail());
-        assertEquals(result.get(0).getBRLamount(), 50.00);
-        assertEquals(result.get(0).getUSDamount(), 20.00);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(ticket.getTicketId(), result.getContent().get(0).getTicketId());
+        assertEquals(ticket2.getTicketId(), result.getContent().get(0).getTicketId());
     }
 
     @Test
     void findByCpfWithInvalidCpf() {
-        String cpf = "9090";
-        when(ticketRepository.findByCpfAndIsDeletedFalse(cpf)).thenThrow(new CpfNotFoundException("Ticket with id " + cpf + " not found"));
+        String cpf = "04798892017";
+        Pageable pageable = PageRequest.of(0, 10);
+        when(ticketRepository.findByCpfAndIsDeletedFalse(cpf, pageable)).thenThrow(new CpfNotFoundException("Ticket with id " + cpf + " not found"));
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            ticketService.findByCpf(cpf); // Método que deve lançar a exceção
+            ticketService.findByCpf(cpf, pageable); // Método que deve lançar a exceção
         });
 
         assertEquals("Ticket with id " + cpf +" not found", exception.getMessage());
@@ -201,17 +209,22 @@ public class TicketServiceTest {
     void findTiketsByEventId() {
         List<Ticket> tickets = input.mockTicketList();
 
-        when(ticketRepository.findAllByEvent_IdAndIsDeletedFalse(anyString())).thenReturn(tickets);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Ticket> page = new PageImpl<>(tickets, pageable, tickets.size());
+        when(ticketRepository.findAllByEvent_IdAndIsDeletedFalse(anyString(), any(Pageable.class))).thenReturn(page);
 
-        List<TicketResponseDto> result = ticketService.findAllByEventId("any");
+        Page<TicketResponseDto> result = ticketService.findAllByEventId("any", pageable);
+        assertNotNull(result);
+        assertEquals(tickets.size(), result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(tickets.size(), result.getContent().size());
 
         for (int i = 0; i < tickets.size(); i++) {
-            assertNotNull(result);
-            assertEquals(result.get(i).getTicketId(), tickets.get(i).getTicketId());
-            assertEquals(result.get(i).getCustomerName(), tickets.get(i).getCustomerName());
-            assertEquals(result.get(i).getCustomerMail(), tickets.get(i).getCustomerMail());
-            assertEquals(result.get(i).getBRLamount(), 50.00 + i);
-            assertEquals(result.get(i).getUSDamount(), 20.00 + i);
+            assertEquals(result.getContent().get(i).getTicketId(), tickets.get(i).getTicketId());
+            assertEquals(result.getContent().get(i).getCustomerName(), tickets.get(i).getCustomerName());
+            assertEquals(result.getContent().get(i).getCustomerMail(), tickets.get(i).getCustomerMail());
+            assertEquals(result.getContent().get(i).getBRLamount(), 50.00 + i);
+            assertEquals(result.getContent().get(i).getUSDamount(), 20.00 + i);
         }
 
 
