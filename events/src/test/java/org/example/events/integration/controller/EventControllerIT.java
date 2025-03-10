@@ -448,4 +448,21 @@ public class EventControllerIT extends AbstractTest {
                 .body()
                 .as(ExceptionResponse.class);
     }
+
+    @Test
+    void testError500() {
+        Event event = events.get(0);
+        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new RuntimeException("Server could not find event"));
+
+        given()
+                .basePath("api/events/v1/delete-event/" + event.getId())
+                .port(port)
+                .when()
+                .delete()
+                .then()
+                .statusCode(500)
+                .extract()
+                .body()
+                .as(ExceptionResponse.class);
+    }
 }
