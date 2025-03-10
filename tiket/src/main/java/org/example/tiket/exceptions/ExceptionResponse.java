@@ -16,6 +16,8 @@ public class ExceptionResponse implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, String> errors;
 
+    public ExceptionResponse() {}
+
     public ExceptionResponse(LocalDate timestamp, String message, String details) {
         this.timestamp = timestamp;
         this.message = message;
@@ -36,7 +38,6 @@ public class ExceptionResponse implements Serializable {
         }
     }
 
-    public ExceptionResponse(LocalDate timestamp, String message) {}
 
     public LocalDate getTimestamp() {
         return timestamp;

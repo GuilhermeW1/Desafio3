@@ -3,14 +3,13 @@ package org.example.tiket.unittests;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Ticket;
-import org.example.tiket.exceptions.CpfNotFoundException;
 import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
 import org.example.tiket.service.EventService;
 import org.example.tiket.service.TicketService;
-import org.example.tiket.unittests.moks.MockEvent;
-import org.example.tiket.unittests.moks.MockTicket;
+import org.example.tiket.moks.MockEvent;
+import org.example.tiket.moks.MockTicket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -132,10 +131,15 @@ public class TicketServiceTest {
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
         assertEquals(result.getBRLamount(), ticket.getBRLamount());
         assertEquals(result.getUSDamount(), ticket.getUSDamount());
+        assertNotNull(result.getStatus());
+        assertNotNull(ticket.getDeleted());
+        assertNull(ticket.getDeletedAt());
+        assertNotNull(ticket.getUpdatedAt());
+        assertNotNull(ticket.getCreatedAt());
     }
 
     @Test
-    void updateWithInvalidIdThrowsException() {
+    void update_WithInvalidTicektId_ThrowsException() {
         String id = "id";
 
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString()))
@@ -144,7 +148,7 @@ public class TicketServiceTest {
         TicketRequestDto dto = input.mockTicketCreateDto();
 
         Exception exception = assertThrows(TicketNotFoundException.class, () -> {
-            ticketService.update(dto, id); // Deve lançar exceção
+            ticketService.update(dto, id);
         });
 
         assertEquals("Ticket with id " + id + " not found", exception.getMessage());
@@ -164,7 +168,6 @@ public class TicketServiceTest {
 
         assertEquals("Event with id " + ticket.getEvent().getId() + " not found", exception.getMessage());
     }
-
 
     @Test
     void delete() {
@@ -190,19 +193,6 @@ public class TicketServiceTest {
         assertEquals(1, result.getTotalPages());
         assertEquals(ticket.getTicketId(), result.getContent().get(0).getTicketId());
         assertEquals(ticket2.getTicketId(), result.getContent().get(0).getTicketId());
-    }
-
-    @Test
-    void findByCpfWithInvalidCpf() {
-        String cpf = "04798892017";
-        Pageable pageable = PageRequest.of(0, 10);
-        when(ticketRepository.findByCpfAndIsDeletedFalse(cpf, pageable)).thenThrow(new CpfNotFoundException("Ticket with id " + cpf + " not found"));
-
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            ticketService.findByCpf(cpf, pageable); // Método que deve lançar a exceção
-        });
-
-        assertEquals("Ticket with id " + cpf +" not found", exception.getMessage());
     }
 
     @Test

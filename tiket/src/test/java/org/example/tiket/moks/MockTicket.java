@@ -4,6 +4,7 @@ import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,10 @@ public class MockTicket {
         ticket.setBRLamount(BRL_AMOUNT);
         ticket.setUSDamount(USD_AMOUNT);
         ticket.setStatus("CREATED");
+        ticket.setCreatedAt(LocalDateTime.now());
+        ticket.setUpdatedAt(null);
+        ticket.setDeleted(false);
+        ticket.setDeletedAt(null);
 
         return ticket;
     }

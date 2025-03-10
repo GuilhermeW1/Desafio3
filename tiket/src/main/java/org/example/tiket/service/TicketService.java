@@ -5,7 +5,6 @@ import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.dto.mappers.TicketMapper;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
-import org.example.tiket.exceptions.CpfNotFoundException;
 import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
@@ -29,9 +28,7 @@ public class TicketService {
     private EventService eventService;
 
     public TicketResponseDto findById(String id) {
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(
-                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
-        );
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
         return TicketMapper.toDto(ticket);
     }
 
@@ -69,10 +66,7 @@ public class TicketService {
     }
 
     public TicketResponseDto update(TicketRequestDto ticketRequestDto, String id) {
-
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(
-                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
-        );
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
         Event event;
         try {
             event = eventService.getEvent(ticketRequestDto.getEventId());
@@ -96,9 +90,7 @@ public class TicketService {
     }
 
     public void delete(String id) {
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(
-                () -> new TicketNotFoundException("Ticket with id " + id + " not found")
-        );
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
         ticket.setDeleted(true);
         ticket.setDeletedAt(LocalDateTime.now());
         ticketRepository.save(ticket);
