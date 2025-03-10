@@ -1,11 +1,9 @@
-package org.example.tiket.unittests.moks;
+package org.example.tiket.moks;
 
 import org.example.tiket.dto.TicketRequestDto;
-import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

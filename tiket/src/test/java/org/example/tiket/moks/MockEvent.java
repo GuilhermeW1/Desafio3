@@ -1,4 +1,4 @@
-package org.example.tiket.unittests.moks;
+package org.example.tiket.moks;
 
 import org.example.tiket.entity.Event;
 
