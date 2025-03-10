@@ -12,8 +12,8 @@ import org.example.events.repository.EventRepository;
 import org.example.events.service.EventService;
 import org.example.events.service.TicketService;
 import org.example.events.service.ViaCepService;
-import org.example.events.unittests.moks.MockEvent;
-import org.example.events.unittests.moks.MockTicket;
+import org.example.events.moks.MockEvent;
+import org.example.events.moks.MockTicket;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -76,6 +76,10 @@ public class EventServiceTest {
         assertEquals(entity.getCidade(), result.getCidade());
         assertEquals(entity.getUf(), result.getUf());
         assertEquals(entity.getLogradouro(), result.getLogradouro());
+        assertEquals(false, entity.getDeleted());
+        assertNull(entity.getUpdatedAt());
+        assertNull(entity.getDeletedAt());
+
     }
 
     @Test
@@ -265,4 +269,5 @@ public class EventServiceTest {
 
         assertEquals("Event with id " + id + " not found", exception.getMessage());
     }
+
 }

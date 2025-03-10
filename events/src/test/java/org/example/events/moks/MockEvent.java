@@ -1,4 +1,4 @@
-package org.example.events.unittests.moks;
+package org.example.events.moks;
 
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
@@ -34,7 +34,7 @@ public class MockEvent {
         e.setUf(DEFAULT_UF);
         e.setDeleted(DEFAULT_DELETED);
         e.setCreatedAt(DEFAULT_CREATED_AT);
-        e.setUpdatedAt(DEFAULT_UPDATED_AT);
+        e.setUpdatedAt(null);
         e.setDeletedAt(null);
 
         return e;
@@ -83,7 +83,7 @@ public class MockEvent {
         List<Event> events = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Event e = new Event();
-            e.setId(DEFAULT_ID);
+            e.setId(DEFAULT_ID + i);
             e.setEventName(DEFAULT_EVENT_NAME + i);
             e.setDateTime(DEFAULT_DATE_TIME);
             e.setCep(DEFAULT_CEP +i);

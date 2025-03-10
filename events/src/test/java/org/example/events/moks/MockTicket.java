@@ -1,4 +1,4 @@
-package org.example.events.unittests.moks;
+package org.example.events.moks;
 
 import org.example.events.entity.Event;
 import org.example.events.entity.Ticket;

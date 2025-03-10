@@ -1,6 +1,7 @@
 package org.example.events.unittests;
 
 import org.example.events.entity.ViaCep;
+import org.example.events.moks.MockCep;
 import org.example.events.service.ViaCepService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -22,20 +23,7 @@ public class ViaCepServiceTest {
 
     @Test
     void getCep() {
-        ViaCep address = new ViaCep();
-        address.setCep("95948-000");
-        address.setLogradouro("");
-        address.setComplemento("");
-        address.setUnidade("");
-        address.setBairro("");
-        address.setLocalidade("Travesseiro");
-        address.setUf("RS");
-        address.setEstado("Rio Grande do Sul");
-        address.setRegiao("Sul");
-        address.setIbge("4321626");
-        address.setGia("");
-        address.setDdd("51");
-        address.setSiafi("6037");
+        ViaCep address = new MockCep().mockViaCep();
 
         when(viaCepService.getCepInfo("95948000")).thenReturn(address);
 
