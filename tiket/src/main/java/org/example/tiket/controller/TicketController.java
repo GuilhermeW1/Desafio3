@@ -19,7 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Ticekt", description = "Here are all the endpoints of this api")
+@Tag(name = "Ticket", description = "Here are all the endpoints of this api")
 @RequestMapping("/api/tickets/v1")
 @RestController
 public class TicketController {
@@ -148,7 +148,29 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @Operation(summary = "Operation returns tickets by event id", description = "This operation returns a list of tickets by event id",
+            parameters = {
+                    @Parameter(
+                            name = "eventId",
+                            description = "Event id",
+                            required = true,
+                            example = "123e4567-e89b-12d3-a456-426614174000"
+                    ),
+                    @Parameter(in = ParameterIn.QUERY, name = "page",
+                            content = @Content(schema = @Schema(type = "integer", defaultValue = "0")),
+                            description = "Represents the returned page"
+                    ),
+                    @Parameter(in = ParameterIn.QUERY, name = "size",
+                            content = @Content(schema = @Schema(type = "integer", description = "10")),
+                            description = "Represents the total of elements per page"
+                    ),
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Resource successfully found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = TicketResponseDto.class))),
+                    @ApiResponse(responseCode = "500", description = "Internal server error",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+            })
     @GetMapping("/check-tickets-by-event/{eventId}")
     public ResponseEntity<Page<TicketResponseDto>> checkTicketsByEvent(
             @PathVariable String eventId,
