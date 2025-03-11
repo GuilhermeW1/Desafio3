@@ -17,8 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Tag(name = "Events", description = "Here are all the endpoints of this api")
 @RestController
@@ -27,6 +33,9 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private PagedResourcesAssembler<EventResponseDto> assembler;
 
 
     @Operation(summary = "Operation to create a event", description = "This operation creates a new event",
@@ -88,12 +97,17 @@ public class EventController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @GetMapping("/get-all-events")
-    public ResponseEntity<Page<EventResponseDto>> getAllEvents(
+    public ResponseEntity<PagedModel<EntityModel<EventResponseDto>>> getAllEvents(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok().body(eventService.findAll(pageable));
+        Page<EventResponseDto> dtos =  eventService.findAll(pageable);
+        dtos.map(e -> e.add(linkTo(methodOn(EventController.class).getEvent(e.getId())).withSelfRel()));
+        Link link = linkTo(methodOn(EventController.class)
+                .getAllEvents(pageable.getPageNumber(), pageable.getPageSize())).withSelfRel();
+
+        return ResponseEntity.ok().body(assembler.toModel(dtos, link));
     }
 
     @Operation(summary = "Operation returns all events", description = "This operation returns a list of events",
@@ -114,7 +128,7 @@ public class EventController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @GetMapping("/get-all-events/sorted")
-    public ResponseEntity<Page<EventResponseDto>> getAllEventsSorted(
+    public ResponseEntity<PagedModel<EntityModel<EventResponseDto>>> getAllEventsSorted(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -122,8 +136,14 @@ public class EventController {
         Sort.Direction dir = direction.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(dir, "eventName");
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok().body(eventService.findAllSorted(pageable));
+        Page<EventResponseDto> dtos =  eventService.findAllSorted(pageable);
+        dtos.map(e -> e.add(linkTo(methodOn(EventController.class).getEvent(e.getId())).withSelfRel()));
+        Link link = linkTo(methodOn(EventController.class)
+                .getAllEvents(pageable.getPageNumber(), pageable.getPageSize())).withSelfRel();
+
+        return ResponseEntity.ok().body(assembler.toModel(dtos, link));
     }
+
 
 
     @Operation(summary = "Operation to update a event", description = "This operation update a new event",

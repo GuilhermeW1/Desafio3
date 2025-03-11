@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class EventResponseDto implements Serializable {
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.hateoas.RepresentationModel;
+
+public class EventResponseDto extends RepresentationModel<EventResponseDto> implements Serializable {
 
     private String id;
     private String eventName;

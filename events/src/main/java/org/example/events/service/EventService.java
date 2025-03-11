@@ -1,5 +1,6 @@
 package org.example.events.service;
 
+import org.example.events.controller.EventController;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.dto.mappers.EventMapper;
@@ -13,8 +14,10 @@ import org.example.events.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.stereotype.Service;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,19 +60,23 @@ public class EventService {
         event.setDeleted(false);
 
         event = eventRepository.save(event);
-
-        return EventMapper.toDto(event);
+        var dto = EventMapper.toDto(event);
+        dto.add(linkTo(methodOn(EventController.class).getEvent(event.getId())).withSelfRel());
+        return dto;
     }
 
     public EventResponseDto findById(String id) {
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
-        return EventMapper.toDto(event);
+        var dto = EventMapper.toDto(event);
+        dto.add(linkTo(methodOn(EventController.class).getEvent(event.getId())).withSelfRel());
+        return dto;
     }
 
     public Page<EventResponseDto> findAll(Pageable pageable) {
         Page<Event> events = eventRepository.findByIsDeletedFalse(pageable);
         Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
         return dtos;
+
     }
 
     public Page<EventResponseDto> findAllSorted(Pageable pageable) {
@@ -106,7 +113,9 @@ public class EventService {
 
         event = eventRepository.save(event);
 
-        return EventMapper.toDto(event);
+        var dto = EventMapper.toDto(event);
+        dto.add(linkTo(methodOn(EventController.class).getEvent(event.getId())).withSelfRel());
+        return dto;
     }
 
     public void delete(String id) {
