@@ -69,6 +69,7 @@ public class EventServiceTest {
         EventResponseDto result = service.create(dto);
 
         assertNotNull(result);
+        assertEquals("links: [</api/events/v1/get-event/uuid>;rel=\"self\"]", result.toString());
         assertNotNull(result.getId());
         assertEquals(entity.getEventName(), result.getEventName());
         assertEquals(entity.getCep(), result.getCep());
@@ -107,6 +108,7 @@ public class EventServiceTest {
         var result = service.update(dto, "uuid");
 
         assertNotNull(result);
+        assertEquals("links: [</api/events/v1/get-event/uuid>;rel=\"self\"]", result.toString());
         assertNotNull(result.getId());
         assertEquals(entity.getId(), result.getId());
         assertEquals(entity.getEventName(), result.getEventName());
@@ -157,6 +159,7 @@ public class EventServiceTest {
         var result = service.findById(entity.getId());
 
         assertNotNull(result);
+        assertEquals("links: [</api/events/v1/get-event/uuid>;rel=\"self\"]", result.toString());
         assertNotNull(result.getId());
         assertEquals(entity.getEventName(), result.getEventName());
         assertEquals(entity.getCep(), result.getCep());

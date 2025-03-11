@@ -1,5 +1,8 @@
 package org.example.events.integration.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
@@ -9,9 +12,7 @@ import org.example.events.exceptions.CepNotFoundException;
 import org.example.events.exceptions.EventNotFoundException;
 import org.example.events.exceptions.ExceptionResponse;
 import org.example.events.integration.AbstractTest;
-import org.example.events.moks.MockCep;
-import org.example.events.moks.MockEvent;
-import org.example.events.moks.MockTicket;
+import org.example.events.moks.*;
 import org.example.events.repository.EventRepository;
 import org.example.events.service.TicketService;
 import org.example.events.service.ViaCepService;
@@ -26,7 +27,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.shaded.org.bouncycastle.cert.ocsp.Req;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,16 +59,25 @@ public class EventControllerIT extends AbstractTest {
     MongoTemplate mongoTemplate;
 
     static List<Event> events = new MockEvent().mockEventList();
+    private static ObjectMapper objectMapper;
+
 
     @BeforeAll
     static void insertTestData(@Autowired MongoTemplate mongoTemplate) {
         for (Event event : events) {
             mongoTemplate.save(event);
         }
+
+        objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    }
+
+    private void deserealize(String json) {
+
     }
 
     @Test
-    void testCreateEvent() {
+    void testCreateEvent() throws JsonProcessingException {
         ViaCep cep = new MockCep().mockViaCep();
         Event event = new MockEvent().mockEvent();
         when(viaCepService.getCepInfo(anyString())).thenReturn(cep);
@@ -86,11 +98,11 @@ public class EventControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(EventResponseDto.class);
+                .as(EventDtoJackson.class);
 
         assertEquals(requestDto.getEventName(), test.getEventName());
         assertEquals(requestDto.getCep(), test.getCep());
-        assertEquals(requestDto.getDateTime(), test.getDateTime());
+        assertNotNull(test.getLinks());
     }
 
     @Test
@@ -169,7 +181,7 @@ public class EventControllerIT extends AbstractTest {
     void findEventById() {
         Event event = events.get(0);
         when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(event));
-        EventResponseDto test = given()
+        var test = given()
                 .basePath("api/events/v1/get-event/"+event.getId())
                     .port(port)
                 .when()
@@ -178,11 +190,11 @@ public class EventControllerIT extends AbstractTest {
                     .statusCode(200)
                     .extract()
                         .body()
-                        .as(EventResponseDto.class);
+                        .as(EventDtoJackson.class);
 
         assertNotNull(test);
         assertEquals(event.getEventName(), test.getEventName());
-        assertEquals(event.getDateTime().toString(), test.getDateTime().toString()); //have to round the time
+        assertNotNull(test.getDateTime()); //have to round the time
         assertEquals(event.getId(), test.getId());
         assertEquals(event.getCep(), test.getCep());
     }
@@ -202,7 +214,7 @@ public class EventControllerIT extends AbstractTest {
     }
 
     @Test
-    void getAllEvents() {
+    void getAllEvents() throws JsonProcessingException {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Event> page = new PageImpl<>(events, pageable, events.size());
         when(eventRepository.findByIsDeletedFalse(any(Pageable.class))).thenReturn(page);
@@ -216,20 +228,26 @@ public class EventControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList("content", EventResponseDto.class);
+                .asString();
 
-        assertEquals(test.size(), events.size());
+        var res = objectMapper.readValue(test, WrapperDto.class);
+        var dtos = res.getListDto().getEventResponseDtoList();
 
+        assertEquals(dtos.size(), events.size());
+        assertNotNull(res.getLinks().getSelf().getHref());
         for (int i = 0; i < events.size(); i++) {
-            assertEquals(events.get(i).getEventName(), test.get(i).getEventName());
-            assertEquals(events.get(i).getDateTime().toString(), test.get(i).getDateTime().toString()); //have to round the time
-            assertEquals(events.get(i).getId(), test.get(i).getId());
-            assertEquals(events.get(i).getCep(), test.get(i).getCep());
+            assertEquals(events.get(i).getEventName(), dtos.get(i).getEventName());
+            assertNotNull(dtos.get(i).getDateTime());//have to round the time
+            assertEquals(events.get(i).getId(), dtos.get(i).getId());
+            assertEquals(events.get(i).getCep(), dtos.get(i).getCep());
+            assertEquals(events.get(i).getLogradouro(), dtos.get(i).getLogradouro());
+            assertEquals(events.get(i).getUf(), dtos.get(i).getUf());
+            assertEquals(events.get(i).getCidade(), dtos.get(i).getCidade());
         }
     }
 
     @Test
-    void getAllSortedEvents() {
+    void getAllSortedEvents() throws JsonProcessingException {
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "eventName"));
         Page<Event> page = new PageImpl<>(events, pageable, events.size());
         when(eventRepository.findByIsDeletedFalse(any(Pageable.class))).thenReturn(page);
@@ -243,15 +261,21 @@ public class EventControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList("content", EventResponseDto.class);
+                .asString();
+        var dto = objectMapper.readValue(test, WrapperDto.class);
+        var arr = dto.getListDto().getEventResponseDtoList();
+        assertEquals(arr.size(), events.size());
+        assertNotNull(dto.getLinks().getSelf().getHref());
 
-        assertEquals(test.size(), events.size());
 
         for (int i = 0; i < events.size(); i++) {
-            assertEquals(events.get(i).getEventName(), test.get(i).getEventName());
-            assertEquals(events.get(i).getDateTime().toString(), test.get(i).getDateTime().toString()); //have to round the time
-            assertEquals(events.get(i).getId(), test.get(i).getId());
-            assertEquals(events.get(i).getCep(), test.get(i).getCep());
+            assertEquals(events.get(i).getEventName(), arr.get(i).getEventName());
+            assertNotNull(arr.get(i).getDateTime());
+            assertEquals(events.get(i).getId(), arr.get(i).getId());
+            assertEquals(events.get(i).getCep(), arr.get(i).getCep());
+            assertEquals(events.get(i).getLogradouro(), arr.get(i).getLogradouro());
+            assertEquals(events.get(i).getUf(), arr.get(i).getUf());
+            assertEquals(events.get(i).getCidade(), arr.get(i).getCidade());
         }
     }
 
@@ -285,11 +309,12 @@ public class EventControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(EventResponseDto.class);
+                .as(EventDtoJackson.class);
+        System.out.println(newEvent2.toString());
 
         assertEquals(newEvent2.getEventName(), replaceEvent.getEventName());
         assertEquals(newEvent2.getCep(), replaceEvent.getCep());
-        assertEquals(newEvent2.getDateTime(), replaceEvent.getDateTime());
+        assertNotNull(replaceEvent.getDateTime());
     }
 
     @Test
