@@ -85,7 +85,6 @@ public class TicketService {
 
         ticket.setCustomerName(ticketRequestDto.getCustomerName());
         ticket.setCustomerMail(ticketRequestDto.getCustomerMail());
-        //todo: fazer a consulta do evento no servico
         ticket.setEvent(event);
         ticket.setCpf(ticketRequestDto.getCpf());
         ticket.setBRLamount(ticketRequestDto.getBrlAmount());
