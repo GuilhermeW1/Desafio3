@@ -3,6 +3,10 @@ package org.example.tiket.moks;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.entity.Event;
 import org.example.tiket.entity.Ticket;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

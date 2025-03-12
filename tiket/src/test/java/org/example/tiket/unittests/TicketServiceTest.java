@@ -69,12 +69,12 @@ public class TicketServiceTest {
     }
 
     @Test
-    void findByIdNotFoundThrowsException() {
+    void findById_withInvalidId_ThrowsException404() {
         String id = "uuid";
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket with id " + id + " not found"));
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            ticketService.findById(id); // Método que deve lançar a exceção
+            ticketService.findById(id);
         });
 
         assertEquals("Ticket with id " + id +" not found", exception.getMessage());
@@ -103,7 +103,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    void createTicketWithInvalidEventIdThrowsException() {
+    void createTicket_WithInvalidEventId_ThrowsException404() {
         Ticket ticket = input.mockTicket();
 
         when(eventService.getEvent(anyString())).thenThrow(FeignException.NotFound.class);
@@ -143,7 +143,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    void update_WithInvalidTicektId_ThrowsException() {
+    void update_WithInvalidTicketId_ThrowsException404() {
         String id = "id";
 
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString()))
@@ -159,7 +159,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    void updateWithInvalidEventIdThrowsException() {
+    void update_WithInvalidEventId_ThrowsException404() {
         Ticket ticket = input.mockTicket();
 
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
@@ -178,6 +178,17 @@ public class TicketServiceTest {
         Ticket ticket = input.mockTicket();
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
         ticketService.delete(ticket.getTicketId());
+    }
+
+    @Test
+    void delete_withInvalidTicketId_ThrowsException404() {
+        Ticket ticket = input.mockTicket();
+        when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket with id " + ticket.getTicketId() + " not found"));
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            ticketService.delete(ticket.getTicketId());
+        });
+
+        assertEquals("Ticket with id " + ticket.getTicketId() + " not found", exception.getMessage());
     }
 
     @Test
@@ -207,7 +218,7 @@ public class TicketServiceTest {
     }
 
     @Test
-    void findTiketsByEventId() {
+    void findTicketsByEventId() {
         List<Ticket> tickets = input.mockTicketList();
 
         Pageable pageable = PageRequest.of(0, 10);
