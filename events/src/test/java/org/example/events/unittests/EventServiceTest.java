@@ -1,5 +1,6 @@
 package org.example.events.unittests;
 
+import feign.FeignException;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
@@ -86,7 +87,7 @@ public class EventServiceTest {
     @Test
     void createEventWithInvalidCepThrowsException() {
         EventRequestDto entity = event.mockEventCreateDto();
-        when(viaCepService.getCepInfo(anyString())).thenThrow( new CepNotFoundException("Server could not find cep"));
+        when(viaCepService.getCepInfo(anyString())).thenThrow(FeignException.NotFound.class);
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             service.create(entity); // Deve lançar exceção
@@ -141,9 +142,9 @@ public class EventServiceTest {
 
         var dto = event.mockEventCreateDto();
 
-        when(viaCepService.getCepInfo(anyString())).thenThrow( new CepNotFoundException("Server could not find cep"));
+        when(viaCepService.getCepInfo(anyString())).thenThrow(FeignException.NotFound.class);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(CepNotFoundException.class, () -> {
             service.update(dto, id); // Deve lançar exceção
         });
 

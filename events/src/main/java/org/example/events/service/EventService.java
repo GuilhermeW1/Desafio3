@@ -1,5 +1,6 @@
 package org.example.events.service;
 
+import feign.FeignException;
 import org.example.events.controller.EventController;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
@@ -42,7 +43,7 @@ public class EventService {
 
         try {
             viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
-        } catch (Exception e) {
+        } catch (FeignException.NotFound e) {
             throw new CepNotFoundException("Server could not find cep");
         }
 
@@ -93,7 +94,7 @@ public class EventService {
 
         try {
             viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
-        } catch (Exception e) {
+        } catch (FeignException.NotFound e) {
             throw new CepNotFoundException("Server could not find cep");
         }
 
