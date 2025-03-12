@@ -49,9 +49,10 @@ public class TicketService {
 
         try {
             event = eventService.getEvent(ticketRequestDto.getEventId());
-        } catch (Exception e) {
+        } catch (FeignException.NotFound e) {
             throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
         }
+
 
         String uuid = UUID.randomUUID().toString();
         ticket.setTicketId(uuid);

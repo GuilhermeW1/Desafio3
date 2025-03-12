@@ -1,5 +1,6 @@
 package org.example.tiket.unittests;
 
+import feign.FeignException;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Ticket;
@@ -105,7 +106,7 @@ public class TicketServiceTest {
     void createTicketWithInvalidEventIdThrowsException() {
         Ticket ticket = input.mockTicket();
 
-        when(eventService.getEvent(anyString())).thenThrow(new EventNotFoundException("Event with id " + ticket.getEvent().getId() + " not found"));
+        when(eventService.getEvent(anyString())).thenThrow(FeignException.NotFound.class);
         TicketRequestDto dto = input.mockTicketCreateDto();
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
