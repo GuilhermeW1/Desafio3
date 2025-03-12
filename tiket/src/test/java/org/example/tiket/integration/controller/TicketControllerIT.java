@@ -1,4 +1,7 @@
 package org.example.tiket.integration.controller;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Event;
@@ -9,6 +12,8 @@ import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.integration.AbstractTest;
 import org.example.tiket.moks.MockEvent;
 import org.example.tiket.moks.MockTicket;
+import org.example.tiket.moks.TicketResponseDtoJackson;
+import org.example.tiket.moks.WrapperDto;
 import org.example.tiket.repository.TicketRepository;
 import org.example.tiket.service.EventService;
 import org.example.tiket.service.TicketService;
@@ -50,12 +55,16 @@ public class TicketControllerIT extends AbstractTest {
     TicketRepository repository;
 
     static List<Ticket> tickets = new MockTicket().mockTicketList();
+    private static ObjectMapper objectMapper;
+
 
     @BeforeAll
     static void insertTestData(@Autowired MongoTemplate mongoTemplate) {
         for (Ticket ticket : tickets) {
             mongoTemplate.save(ticket);
         }
+        objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     MockTicket mockTicket;
@@ -85,11 +94,18 @@ public class TicketControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(TicketResponseDto.class);
+                .as(TicketResponseDtoJackson.class);
 
         assertNotNull(response);
+        assertNotNull(response.getLinks().getSelf().getHref());
         assertEquals(response.getTicketId(), ticket.getTicketId());
-        assertEquals(response.getEvent(), event);
+        assertEquals(response.getEvent().getBairro(),  ticket.getEvent().getBairro());
+        assertEquals(response.getEvent().getCidade(),  ticket.getEvent().getCidade());
+        assertEquals(response.getEvent().getEventName(),  ticket.getEvent().getEventName());
+        assertEquals(response.getEvent().getUf(),  ticket.getEvent().getUf());
+        assertEquals(response.getEvent().getId(),  ticket.getEvent().getId());
+        assertEquals(response.getEvent().getLogradouro(),  ticket.getEvent().getLogradouro());
+        assertNotNull(ticket.getEvent().getDateTime());
         assertEquals(response.getStatus(), ticket.getStatus());
         assertEquals(response.getBRLamount(), ticket.getBRLamount());
         assertEquals(response.getUSDamount(), ticket.getUSDamount());
@@ -234,11 +250,18 @@ public class TicketControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(TicketResponseDto.class);
+                .as(TicketResponseDtoJackson.class);
 
         assertNotNull(response);
+        assertNotNull(response.getLinks().getSelf().getHref());
         assertEquals(response.getTicketId(), ticket.getTicketId());
-        assertEquals(response.getEvent(), ticket.getEvent());
+        assertEquals(response.getEvent().getBairro(),  ticket.getEvent().getBairro());
+        assertEquals(response.getEvent().getCidade(),  ticket.getEvent().getCidade());
+        assertEquals(response.getEvent().getEventName(),  ticket.getEvent().getEventName());
+        assertEquals(response.getEvent().getUf(),  ticket.getEvent().getUf());
+        assertEquals(response.getEvent().getId(),  ticket.getEvent().getId());
+        assertEquals(response.getEvent().getLogradouro(),  ticket.getEvent().getLogradouro());
+        assertNotNull(ticket.getEvent().getDateTime());
         assertEquals(response.getStatus(), ticket.getStatus());
         assertEquals(response.getBRLamount(), ticket.getBRLamount());
         assertEquals(response.getUSDamount(), ticket.getUSDamount());
@@ -267,13 +290,13 @@ public class TicketControllerIT extends AbstractTest {
     }
 
     @Test
-    void getByCpf() {
+    void getByCpf() throws JsonProcessingException {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Ticket> page = new PageImpl<>(tickets, pageable, tickets.size());
 
         when(repository.findByCpfAndIsDeletedFalse(anyString(), any(Pageable.class))).thenReturn(page);
 
-        var response = given()
+        String response = given()
                 .basePath("api/tickets/v1/get-ticket-by-cpf/" + tickets.get(0).getCpf())
                 .port(port)
                 .when()
@@ -282,19 +305,28 @@ public class TicketControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList("content", TicketResponseDto.class);
+                .asString();
+        WrapperDto dtos = objectMapper.readValue(response, WrapperDto.class);
+        var list = dtos.getListDto().getEventResponseDtoList();
 
-        assertNotNull(response);
-        assertEquals(response.size(), tickets.size());
+        assertEquals(list.size(), tickets.size());
+        assertNotNull(dtos.getLinks().getSelf().getHref());
 
         for (int i = 0; i < tickets.size(); i ++ ) {
-            assertEquals(response.get(i).getTicketId(), tickets.get(i).getTicketId());
-            assertEquals(response.get(i).getEvent(),  tickets.get(i).getEvent());
-            assertEquals(response.get(i).getStatus(),  tickets.get(i).getStatus());
-            assertEquals(response.get(i).getBRLamount(),  tickets.get(i).getBRLamount());
-            assertEquals(response.get(i).getUSDamount(),  tickets.get(i).getUSDamount());
-            assertEquals(response.get(i).getCustomerMail(),  tickets.get(i).getCustomerMail());
-            assertEquals(response.get(i).getCustomerName(),  tickets.get(i).getCustomerName());
+            System.out.println(list.get(i).toString());
+            assertEquals(list.get(i).getTicketId(), tickets.get(i).getTicketId());
+            assertEquals(list.get(i).getEvent().getBairro(),  tickets.get(i).getEvent().getBairro());
+            assertEquals(list.get(i).getEvent().getCidade(),  tickets.get(i).getEvent().getCidade());
+            assertEquals(list.get(i).getEvent().getEventName(),  tickets.get(i).getEvent().getEventName());
+            assertEquals(list.get(i).getEvent().getUf(),  tickets.get(i).getEvent().getUf());
+            assertEquals(list.get(i).getEvent().getId(),  tickets.get(i).getEvent().getId());
+            assertEquals(list.get(i).getEvent().getLogradouro(),  tickets.get(i).getEvent().getLogradouro());
+            assertNotNull(list.get(i).getEvent().getDateTime());
+            assertEquals(list.get(i).getStatus(),  tickets.get(i).getStatus());
+            assertEquals(list.get(i).getBRLamount(),  tickets.get(i).getBRLamount());
+            assertEquals(list.get(i).getUSDamount(),  tickets.get(i).getUSDamount());
+            assertEquals(list.get(i).getCustomerMail(),  tickets.get(i).getCustomerMail());
+            assertEquals(list.get(i).getCustomerName(),  tickets.get(i).getCustomerName());
         }
     }
 
@@ -328,12 +360,19 @@ public class TicketControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(TicketResponseDto.class);
+                .as(TicketResponseDtoJackson.class);
 
         assertNotNull(response);
+        assertNotNull(response.getLinks().getSelf().getHref());
         assertEquals(response.getTicketId(), old.getTicketId());
         assertEquals(response.getTicketId(), newTicket.getTicketId());
-        assertEquals(response.getEvent(), event);
+        assertEquals(response.getEvent().getBairro(),  newTicket.getEvent().getBairro());
+        assertEquals(response.getEvent().getCidade(),  newTicket.getEvent().getCidade());
+        assertEquals(response.getEvent().getEventName(),  newTicket.getEvent().getEventName());
+        assertEquals(response.getEvent().getUf(),  newTicket.getEvent().getUf());
+        assertEquals(response.getEvent().getId(),  newTicket.getEvent().getId());
+        assertEquals(response.getEvent().getLogradouro(),  newTicket.getEvent().getLogradouro());
+        assertNotNull(newTicket.getEvent().getDateTime());
         assertEquals(response.getStatus(), newTicket.getStatus());
         assertEquals(response.getBRLamount(), newTicket.getBRLamount());
         assertEquals(response.getUSDamount(), newTicket.getUSDamount());
@@ -519,7 +558,7 @@ public class TicketControllerIT extends AbstractTest {
     }
 
     @Test
-    void checkTicketsByEventId() {
+    void checkTicketsByEventId() throws JsonProcessingException {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Ticket> page = new PageImpl<>(tickets, pageable, tickets.size());
 
@@ -534,19 +573,28 @@ public class TicketControllerIT extends AbstractTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList("content", TicketResponseDto.class);
+                .asString();
 
-        assertNotNull(response);
-        assertEquals(response.size(), tickets.size());
+        WrapperDto dtos = objectMapper.readValue(response, WrapperDto.class);
+        var list = dtos.getListDto().getEventResponseDtoList();
+
+        assertEquals(list.size(), tickets.size());
+        assertNotNull(dtos.getLinks().getSelf().getHref());
 
         for (int i = 0; i < tickets.size(); i ++ ) {
-            assertEquals(response.get(i).getTicketId(), tickets.get(i).getTicketId());
-            assertEquals(response.get(i).getEvent(),  tickets.get(i).getEvent());
-            assertEquals(response.get(i).getStatus(),  tickets.get(i).getStatus());
-            assertEquals(response.get(i).getBRLamount(),  tickets.get(i).getBRLamount());
-            assertEquals(response.get(i).getUSDamount(),  tickets.get(i).getUSDamount());
-            assertEquals(response.get(i).getCustomerMail(),  tickets.get(i).getCustomerMail());
-            assertEquals(response.get(i).getCustomerName(),  tickets.get(i).getCustomerName());
+            assertEquals(list.get(i).getTicketId(), tickets.get(i).getTicketId());
+            assertEquals(list.get(i).getEvent().getBairro(),  tickets.get(i).getEvent().getBairro());
+            assertEquals(list.get(i).getEvent().getCidade(),  tickets.get(i).getEvent().getCidade());
+            assertEquals(list.get(i).getEvent().getEventName(),  tickets.get(i).getEvent().getEventName());
+            assertEquals(list.get(i).getEvent().getUf(),  tickets.get(i).getEvent().getUf());
+            assertEquals(list.get(i).getEvent().getId(),  tickets.get(i).getEvent().getId());
+            assertEquals(list.get(i).getEvent().getLogradouro(),  tickets.get(i).getEvent().getLogradouro());
+            assertNotNull(list.get(i).getEvent().getDateTime());
+            assertEquals(list.get(i).getStatus(),  tickets.get(i).getStatus());
+            assertEquals(list.get(i).getBRLamount(),  tickets.get(i).getBRLamount());
+            assertEquals(list.get(i).getUSDamount(),  tickets.get(i).getUSDamount());
+            assertEquals(list.get(i).getCustomerMail(),  tickets.get(i).getCustomerMail());
+            assertEquals(list.get(i).getCustomerName(),  tickets.get(i).getCustomerName());
         }
     }
 

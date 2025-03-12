@@ -58,7 +58,8 @@ public class TicketServiceTest {
 
         TicketResponseDto result = ticketService.findById("1");
 
-        assertNotNull(result);
+        System.out.println(result.toString());
+        assertEquals("links: [</api/tickets/v1/get-ticket/uuid>;rel=\"self\"]", result.toString());
         assertEquals(result.getTicketId(), ticket.getTicketId());
         assertEquals(result.getCustomerName(), ticket.getCustomerName());
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
@@ -91,6 +92,7 @@ public class TicketServiceTest {
         TicketResponseDto result = ticketService.create(dto);
 
         assertNotNull(result);
+        assertEquals("links: [</api/tickets/v1/get-ticket/uuid>;rel=\"self\"]", result.toString());
         assertEquals(result.getTicketId(), ticket.getTicketId());
         assertEquals(result.getCustomerName(), ticket.getCustomerName());
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
@@ -126,6 +128,7 @@ public class TicketServiceTest {
         TicketResponseDto result = ticketService.update(dto, ticket.getTicketId());
 
         assertNotNull(result);
+        assertEquals("links: [</api/tickets/v1/get-ticket/uuid>;rel=\"self\"]", result.toString());
         assertEquals(result.getTicketId(), ticket.getTicketId());
         assertEquals(result.getCustomerName(), ticket.getCustomerName());
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
@@ -191,8 +194,15 @@ public class TicketServiceTest {
         assertNotNull(result);
         assertEquals(2, result.getTotalElements());
         assertEquals(1, result.getTotalPages());
-        assertEquals(ticket.getTicketId(), result.getContent().get(0).getTicketId());
-        assertEquals(ticket2.getTicketId(), result.getContent().get(0).getTicketId());
+
+        for (int i = 0; i < tickets.size(); i++) {
+            assertNotNull(result.getContent().get(i).toString());
+            assertEquals(result.getContent().get(i).getTicketId(), tickets.get(i).getTicketId());
+            assertEquals(result.getContent().get(i).getCustomerName(), tickets.get(i).getCustomerName());
+            assertEquals(result.getContent().get(i).getCustomerMail(), tickets.get(i).getCustomerMail());
+            assertEquals(result.getContent().get(i).getBRLamount(), tickets.get(i).getBRLamount());
+            assertEquals(result.getContent().get(i).getUSDamount(), tickets.get(i).getUSDamount());
+        }
     }
 
     @Test
@@ -210,6 +220,7 @@ public class TicketServiceTest {
         assertEquals(tickets.size(), result.getContent().size());
 
         for (int i = 0; i < tickets.size(); i++) {
+            assertEquals("links: [</api/tickets/v1/get-ticket/uuid"+i+">;rel=\"self\"]", result.getContent().get(i).toString());
             assertEquals(result.getContent().get(i).getTicketId(), tickets.get(i).getTicketId());
             assertEquals(result.getContent().get(i).getCustomerName(), tickets.get(i).getCustomerName());
             assertEquals(result.getContent().get(i).getCustomerMail(), tickets.get(i).getCustomerMail());
