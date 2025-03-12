@@ -1,5 +1,7 @@
 package org.example.tiket.service;
 
+import feign.FeignException;
+import org.example.tiket.controller.TicketController;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.dto.mappers.TicketMapper;
@@ -14,9 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class TicketService {
@@ -29,12 +31,16 @@ public class TicketService {
 
     public TicketResponseDto findById(String id) {
         Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
-        return TicketMapper.toDto(ticket);
+        var dto = TicketMapper.toDto(ticket);
+        dto.add(linkTo(methodOn(TicketController.class).getTicket(dto.getTicketId())).withSelfRel());
+        return dto;
     }
 
     public Page<TicketResponseDto> findByCpf(String cpf, Pageable pageable) {
         Page<Ticket> tickets = ticketRepository.findByCpfAndIsDeletedFalse(cpf, pageable);
-        return tickets.map(TicketMapper::toDto);
+        var dtos = tickets.map(TicketMapper::toDto);
+        dtos.map(e -> e.add(linkTo(methodOn(TicketController.class).getTicket(e.getTicketId())).withSelfRel()));
+        return dtos;
     }
 
     public TicketResponseDto create(TicketRequestDto ticketRequestDto) {
@@ -62,7 +68,9 @@ public class TicketService {
         ticket.setDeleted(false);
         ticket.setStatus("CREATED");
         ticket = ticketRepository.save(ticket);
-        return TicketMapper.toDto(ticket);
+        var dto = TicketMapper.toDto(ticket);
+        dto.add(linkTo(methodOn(TicketController.class).getTicket(dto.getTicketId())).withSelfRel());
+        return dto;
     }
 
     public TicketResponseDto update(TicketRequestDto ticketRequestDto, String id) {
@@ -86,7 +94,9 @@ public class TicketService {
         ticket.setDeleted(false);
 
         ticket = ticketRepository.save(ticket);
-        return TicketMapper.toDto(ticket);
+        var dto = TicketMapper.toDto(ticket);
+        dto.add(linkTo(methodOn(TicketController.class).getTicket(dto.getTicketId())).withSelfRel());
+        return dto;
     }
 
     public void delete(String id) {
@@ -98,6 +108,8 @@ public class TicketService {
 
     public Page<TicketResponseDto> findAllByEventId(String eventId, Pageable pageable) {
         Page<Ticket> tickets = ticketRepository.findAllByEvent_IdAndIsDeletedFalse(eventId, pageable);
-        return tickets.map(TicketMapper::toDto);
+        var dtos = tickets.map(TicketMapper::toDto);
+        dtos.map(e -> e.add(linkTo(methodOn(TicketController.class).getTicket(e.getTicketId())).withSelfRel()));
+        return dtos;
     }
 }

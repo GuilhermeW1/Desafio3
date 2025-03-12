@@ -2,10 +2,12 @@ package org.example.tiket.dto;
 
 import org.example.tiket.entity.Event;
 
+import java.io.Serializable;
 import java.lang.Double;
 import java.util.Objects;
+import org.springframework.hateoas.RepresentationModel;
 
-public class TicketResponseDto {
+public class TicketResponseDto extends RepresentationModel<TicketResponseDto> implements Serializable {
     private String ticketId;
     private String cpf;
     private String customerName;

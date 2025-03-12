@@ -16,8 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.hateoas.Link;
 
 @Tag(name = "Ticket", description = "Here are all the endpoints of this api")
 @RequestMapping("/api/tickets/v1")
@@ -26,6 +32,9 @@ public class TicketController {
 
     @Autowired
     private TicketService ticketService;
+
+    @Autowired
+    private PagedResourcesAssembler<TicketResponseDto> assembler;
 
     @Operation(summary = "Operation to create a ticket", description = "This operation creates a new ticket",
         requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -92,13 +101,17 @@ public class TicketController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @GetMapping("/get-ticket-by-cpf/{cpf}")
-    public ResponseEntity<Page<TicketResponseDto>> getTicketByCpf(
+    public ResponseEntity<PagedModel<EntityModel<TicketResponseDto>>> getTicketByCpf(
                 @PathVariable String cpf,
                 @RequestParam(value = "page", defaultValue = "0") Integer page,
-                @RequestParam(value = "size", defaultValue = "3") Integer size
+                @RequestParam(value = "size", defaultValue = "10") Integer size
             ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok().body(ticketService.findByCpf(cpf, pageable));
+        Page<TicketResponseDto> dtos =  ticketService.findByCpf(cpf, pageable);
+        Link link = linkTo(methodOn(TicketController.class)
+                .getTicketByCpf(cpf, pageable.getPageNumber(), pageable.getPageSize())).withSelfRel();
+
+        return ResponseEntity.ok().body(assembler.toModel(dtos, link));
     }
 
     @Operation(summary = "Operation to update a ticket", description = "This operation update an existent ticket",
@@ -172,12 +185,16 @@ public class TicketController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @GetMapping("/check-tickets-by-event/{eventId}")
-    public ResponseEntity<Page<TicketResponseDto>> checkTicketsByEvent(
+    public ResponseEntity<PagedModel<EntityModel<TicketResponseDto>>> checkTicketsByEvent(
             @PathVariable String eventId,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok().body(ticketService.findAllByEventId(eventId, pageable));
+        Page<TicketResponseDto> dtos =  ticketService.findAllByEventId(eventId, pageable);
+        Link link = linkTo(methodOn(TicketController.class)
+                .checkTicketsByEvent(eventId, pageable.getPageNumber(), pageable.getPageSize())).withSelfRel();
+
+        return ResponseEntity.ok().body(assembler.toModel(dtos, link));
     }
 }
