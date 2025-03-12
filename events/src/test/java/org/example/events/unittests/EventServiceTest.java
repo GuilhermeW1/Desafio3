@@ -23,7 +23,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.when;
 public class EventServiceTest {
 
     MockEvent event;
+    MockTicket ticket;
 
     @Mock
     TicketService ticketService;
@@ -55,6 +60,7 @@ public class EventServiceTest {
     @BeforeEach
     void setUp() {
         event = new MockEvent();
+        ticket = new MockTicket();
         MockitoAnnotations.openMocks(this);
     }
 
@@ -237,21 +243,15 @@ public class EventServiceTest {
     @Test
     void deleteEvent() {
         Event entity = event.mockEvent();
-        List<Ticket> emptyTickets = new ArrayList<>();
-        Page<Ticket> page = new PageImpl<>(emptyTickets, PageRequest.of(0, 10), emptyTickets.size());
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
-        when(ticketService.checkTickets(anyString())).thenReturn(page);
+        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
 
         service.delete(entity.getId());
-
     }
 
     @Test
     void deleteEventWithTicketsAssociateThrowsException() {
         Event entity = event.mockEvent();
-        Ticket tiket = new MockTicket().mockTicket(entity);
-        List<Ticket> tickets = new ArrayList<>();
-        tickets.add(tiket);
 
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
         when(ticketService.checkTickets(anyString())).thenThrow(new TicketsAssociatedWithEventException("There are tickets associated with this event"));
@@ -268,7 +268,7 @@ public class EventServiceTest {
         String id = "uuid";
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new EventNotFoundException("Event with id " + id + " not found"));
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            service.delete(id); // Deve lançar exceção
+            service.delete(id);
         });
 
         assertEquals("Event with id " + id + " not found", exception.getMessage());

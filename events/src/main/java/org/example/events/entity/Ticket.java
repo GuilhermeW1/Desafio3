@@ -1,8 +1,12 @@
 package org.example.events.entity;
 
+import org.example.events.dto.EventResponseDto;
+import org.springframework.hateoas.RepresentationModel;
+
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Ticket {
+public class Ticket extends RepresentationModel<Ticket> implements Serializable {
 
     private String ticketId;
     private String cpf;

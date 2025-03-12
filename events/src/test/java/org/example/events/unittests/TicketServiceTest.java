@@ -2,6 +2,7 @@ package org.example.events.unittests;
 
 import org.example.events.entity.Event;
 import org.example.events.entity.Ticket;
+import org.example.events.moks.MockTicket;
 import org.example.events.service.TicketService;
 import org.example.events.moks.MockEvent;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,39 +38,15 @@ public class TicketServiceTest {
     }
 
 
-    public List<Ticket> mockTickets() {
-        Event event = input.mockEvent();
-        List<Ticket> tickets = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            Ticket ticket = new Ticket();
-            ticket.setCustomerName("name" +i);
-            ticket.setCustomerMail("email"+i);
-            ticket.setEvent(event);
-            ticket.setBRLamount((double) 10 + i);
-            ticket.setUSDamount((double) 10 + i);
-
-            tickets.add(ticket);
-        }
-        return tickets;
-    }
-
     @Test
     void getTicketsByEventId() {
-        List<Ticket> tickets = mockTickets();
-        Page<Ticket> page = new PageImpl<>(tickets, PageRequest.of(0, 10), tickets.size());
-        when(ticketService.checkTickets(anyString())).thenReturn(page);
-        var result = ticketService.checkTickets("teste");
+        Ticket ticket = new MockTicket().mockTicket(new Event());
 
+        when(ticketService.checkTickets(anyString())).thenReturn(new MockTicket().mockPagedModelTicket());
+        var result = ticketService.checkTickets("teste");
+        var arr = result.getContent();
         assertNotNull(result);
-        assertEquals(3, tickets.size());
-        for (int i = 0; i < 3; i++) {
-            assertEquals(tickets.get(i).getTicketId(), result.getContent().get(i).getTicketId());
-            assertEquals(tickets.get(i).getCustomerName(), result.getContent().get(i).getCustomerName());
-            assertEquals(tickets.get(i).getCustomerMail(), result.getContent().get(i).getCustomerMail());
-            assertEquals(tickets.get(i).getEvent().getId(), result.getContent().get(i).getEvent().getId());
-            assertEquals(tickets.get(i).getBRLamount(), result.getContent().get(i).getBRLamount());
-            assertEquals(tickets.get(i).getUSDamount(), result.getContent().get(i).getUSDamount());
-        }
+        assertEquals(1, arr.size());
     }
 
 }

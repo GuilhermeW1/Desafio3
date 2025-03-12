@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -122,8 +124,8 @@ public class EventService {
     public void delete(String id) {
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
         //todo change checkTickets name to checkTicketsByEventId
-        Page<Ticket> tickets = ticketService.checkTickets(id);
-        if (!tickets.isEmpty()) {
+        PagedModel<EntityModel<Ticket>> tickets = ticketService.checkTickets(id);
+        if (!tickets.getContent().isEmpty()) {
             throw new TicketsAssociatedWithEventException("There are tickets associated with this event");
         }
         event.setDeletedAt(LocalDateTime.now());

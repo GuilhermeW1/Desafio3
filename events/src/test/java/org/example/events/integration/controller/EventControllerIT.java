@@ -23,10 +23,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.shaded.org.bouncycastle.cert.ocsp.Req;
 
+import javax.swing.text.html.parser.Entity;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,6 +63,7 @@ public class EventControllerIT extends AbstractTest {
 
     static List<Event> events = new MockEvent().mockEventList();
     private static ObjectMapper objectMapper;
+    private static MockTicket ticket;
 
 
     @BeforeAll
@@ -67,7 +71,7 @@ public class EventControllerIT extends AbstractTest {
         for (Event event : events) {
             mongoTemplate.save(event);
         }
-
+        ticket = new MockTicket();
         objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
@@ -415,11 +419,8 @@ public class EventControllerIT extends AbstractTest {
     void deleteEvent() {
         Event event = events.get(0);
 
-        List<Ticket> emptyTickets = new ArrayList<>();
-        Page<Ticket> page = new PageImpl<>(emptyTickets, PageRequest.of(0, 10), emptyTickets.size());
-
         when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(event));
-        when(ticketService.checkTickets(anyString())).thenReturn(page);
+        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
 
         given()
                 .basePath("api/events/v1/delete-event/" + event.getId())
@@ -436,14 +437,8 @@ public class EventControllerIT extends AbstractTest {
     void deleteEvent_withTicketsAssociate_throwsException409() {
         Event event = events.get(0);
 
-        List<Ticket> tickets = new ArrayList<>();
-        Ticket ticket = new MockTicket().mockTicket(event);
-        tickets.add(ticket);
-
-        Page<Ticket> page = new PageImpl<>(tickets, PageRequest.of(0, 10), tickets.size());
-
         when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(event));
-        when(ticketService.checkTickets(anyString())).thenReturn(page);
+        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockPagedModelTicket());
 
         given()
                 .basePath("api/events/v1/delete-event/" + event.getId())
