@@ -19,15 +19,6 @@ public class Ticket extends RepresentationModel<Ticket> implements Serializable 
 
     public Ticket() {}
 
-    public Ticket(String ticketId, String customerName, String customerMail, Event event, Double BRLamount, Double USDamount, String status) {
-        this.ticketId = ticketId;
-        this.customerName = customerName;
-        this.customerMail = customerMail;
-        this.event = event;
-        this.BRLamount = BRLamount;
-        this.USDamount = USDamount;
-        this.status = status;
-    }
 
     public String getStatus() {
         return status;

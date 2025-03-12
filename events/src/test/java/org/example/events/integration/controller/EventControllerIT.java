@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.events.dto.EventRequestDto;
-import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
-import org.example.events.entity.Ticket;
 import org.example.events.entity.ViaCep;
 import org.example.events.exceptions.CepNotFoundException;
 import org.example.events.exceptions.EventNotFoundException;
@@ -23,16 +21,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.shaded.org.bouncycastle.cert.ocsp.Req;
-
-import javax.swing.text.html.parser.Entity;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,9 +48,6 @@ public class EventControllerIT extends AbstractTest {
     @MockitoBean
     TicketService ticketService;
 
-    @Autowired
-    MongoTemplate mongoTemplate;
-
     static List<Event> events = new MockEvent().mockEventList();
     private static ObjectMapper objectMapper;
     private static MockTicket ticket;
@@ -76,12 +63,8 @@ public class EventControllerIT extends AbstractTest {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    private void deserealize(String json) {
-
-    }
-
     @Test
-    void testCreateEvent() throws JsonProcessingException {
+    void testCreateEvent() {
         ViaCep cep = new MockCep().mockViaCep();
         Event event = new MockEvent().mockEvent();
         when(viaCepService.getCepInfo(anyString())).thenReturn(cep);
@@ -420,7 +403,7 @@ public class EventControllerIT extends AbstractTest {
         Event event = events.get(0);
 
         when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(event));
-        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
+        when(ticketService.checkTicketsByEventId(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
 
         given()
                 .basePath("api/events/v1/delete-event/" + event.getId())
@@ -438,7 +421,7 @@ public class EventControllerIT extends AbstractTest {
         Event event = events.get(0);
 
         when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(event));
-        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockPagedModelTicket());
+        when(ticketService.checkTicketsByEventId(anyString())).thenReturn(ticket.mockPagedModelTicket());
 
         given()
                 .basePath("api/events/v1/delete-event/" + event.getId())

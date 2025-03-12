@@ -4,7 +4,6 @@ import feign.FeignException;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.dto.EventResponseDto;
 import org.example.events.entity.Event;
-import org.example.events.entity.Ticket;
 import org.example.events.entity.ViaCep;
 import org.example.events.exceptions.CepNotFoundException;
 import org.example.events.exceptions.EventNotFoundException;
@@ -21,15 +20,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,7 +53,6 @@ public class EventServiceTest {
     void setUp() {
         event = new MockEvent();
         ticket = new MockTicket();
-        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -244,7 +235,7 @@ public class EventServiceTest {
     void deleteEvent() {
         Event entity = event.mockEvent();
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
-        when(ticketService.checkTickets(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
+        when(ticketService.checkTicketsByEventId(anyString())).thenReturn(ticket.mockEmptyPagedModelTicket());
 
         service.delete(entity.getId());
     }
@@ -254,7 +245,7 @@ public class EventServiceTest {
         Event entity = event.mockEvent();
 
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
-        when(ticketService.checkTickets(anyString())).thenThrow(new TicketsAssociatedWithEventException("There are tickets associated with this event"));
+        when(ticketService.checkTicketsByEventId(anyString())).thenThrow(new TicketsAssociatedWithEventException("There are tickets associated with this event"));
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             service.delete(entity.getId());

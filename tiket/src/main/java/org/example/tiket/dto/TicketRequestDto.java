@@ -26,16 +26,6 @@ public class TicketRequestDto {
     public TicketRequestDto() {
     }
 
-    public TicketRequestDto(String cpf, String customerName, String customerMail, String eventId, String eventName, Double BRLamount, Double USDamount) {
-        this.cpf = cpf;
-        this.customerName = customerName;
-        this.customerMail = customerMail;
-        this.eventId = eventId;
-        this.eventName = eventName;
-        this.brlAmount = BRLamount;
-        this.usdAmount = USDamount;
-    }
-
     public String getCpf() {
         return cpf;
     }

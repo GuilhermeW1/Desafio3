@@ -2,9 +2,6 @@ package org.example.events.moks;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.springframework.hateoas.Link;
-
-import java.time.LocalDateTime;
 import java.util.Date;
 
 public class EventDtoJackson {

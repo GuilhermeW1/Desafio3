@@ -15,7 +15,6 @@ import org.example.events.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -41,7 +39,7 @@ public class EventService {
     public EventResponseDto create(EventRequestDto eventCreateDto) {
         Event event = new Event();
         String uuid = UUID.randomUUID().toString();
-        ViaCep viaCep = new ViaCep();
+        ViaCep viaCep;
 
         try {
             viaCep = viaCepService.getCepInfo(eventCreateDto.getCep());
@@ -77,15 +75,13 @@ public class EventService {
 
     public Page<EventResponseDto> findAll(Pageable pageable) {
         Page<Event> events = eventRepository.findByIsDeletedFalse(pageable);
-        Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
-        return dtos;
+        return events.map(EventMapper::toDto);
 
     }
 
     public Page<EventResponseDto> findAllSorted(Pageable pageable) {
         Page<Event> events = eventRepository.findByIsDeletedFalse(pageable) ;
-        Page<EventResponseDto> dtos = events.map(EventMapper::toDto);
-        return dtos;
+        return events.map(EventMapper::toDto);
     }
 
     public EventResponseDto update(EventRequestDto eventCreateDto, String id) {
@@ -124,7 +120,7 @@ public class EventService {
     public void delete(String id) {
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new EventNotFoundException("Event with id " + id + " not found"));
         //todo change checkTickets name to checkTicketsByEventId
-        PagedModel<EntityModel<Ticket>> tickets = ticketService.checkTickets(id);
+        PagedModel<EntityModel<Ticket>> tickets = ticketService.checkTicketsByEventId(id);
         if (!tickets.getContent().isEmpty()) {
             throw new TicketsAssociatedWithEventException("There are tickets associated with this event");
         }

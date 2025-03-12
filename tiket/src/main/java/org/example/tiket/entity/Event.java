@@ -14,15 +14,6 @@ public class Event {
 
     public Event() {}
 
-    public Event(String uf, String cidade, String bairro, String logradouro, LocalDateTime dateTime, String eventName, String id) {
-        this.uf = uf;
-        this.cidade = cidade;
-        this.bairro = bairro;
-        this.logradouro = logradouro;
-        this.dateTime = dateTime;
-        this.eventName = eventName;
-        this.id = id;
-    }
 
     public String getId() {
         return id;

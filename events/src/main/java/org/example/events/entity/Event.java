@@ -26,20 +26,6 @@ public class Event implements Serializable {
 
     public Event() {}
 
-    public Event(String id, String eventName, LocalDateTime dateTime, String cep, String logradouro, String bairro, String cidade, String uf, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Boolean isDeleted) {
-        this.id = id;
-        this.eventName = eventName;
-        this.dateTime = dateTime;
-        this.cep = cep;
-        this.logradouro = logradouro;
-        this.bairro = bairro;
-        this.cidade = cidade;
-        this.uf = uf;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
-        this.isDeleted = isDeleted;
-    }
 
     public String getId() {
         return id;

@@ -2,14 +2,9 @@ package org.example.events.moks;
 
 import org.example.events.entity.Event;
 import org.example.events.entity.Ticket;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.EntityModel;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.List;

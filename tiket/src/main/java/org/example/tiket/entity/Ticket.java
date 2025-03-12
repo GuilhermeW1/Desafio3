@@ -25,21 +25,6 @@ public class Ticket {
 
    public Ticket() {}
 
-    public Ticket(String ticketId, String cpf, String customerName, String customerMail, Event event, Double BRLamount, Double USDamount, String status, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt, Boolean isDeleted) {
-        this.ticketId = ticketId;
-        this.cpf = cpf;
-        this.customerName = customerName;
-        this.customerMail = customerMail;
-        this.event = event;
-        this.BRLamount = BRLamount;
-        this.USDamount = USDamount;
-        this.status = status;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deletedAt = deletedAt;
-        this.isDeleted = isDeleted;
-    }
-
     public String getTicketId() {
         return ticketId;
     }

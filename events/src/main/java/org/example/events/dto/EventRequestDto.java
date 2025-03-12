@@ -19,11 +19,6 @@ public class EventRequestDto implements Serializable {
 
     public EventRequestDto() {}
 
-    public EventRequestDto(String eventName, LocalDateTime dateTime, String cep) {
-        this.eventName = eventName;
-        this.dateTime = dateTime;
-        this.cep = cep;
-    }
 
     public String getEventName() {
         return eventName;

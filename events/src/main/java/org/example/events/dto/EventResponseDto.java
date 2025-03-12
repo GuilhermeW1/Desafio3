@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.hateoas.RepresentationModel;
 
 public class EventResponseDto extends RepresentationModel<EventResponseDto> implements Serializable {
@@ -20,16 +19,6 @@ public class EventResponseDto extends RepresentationModel<EventResponseDto> impl
 
     public EventResponseDto() {}
 
-    public EventResponseDto(String uf, String cidade, String bairro, String logradouro, String cep, LocalDateTime dateTime, String eventName, String id) {
-        this.uf = uf;
-        this.cidade = cidade;
-        this.bairro = bairro;
-        this.logradouro = logradouro;
-        this.cep = cep;
-        this.dateTime = dateTime;
-        this.eventName = eventName;
-        this.id = id;
-    }
 
     public String getId() {
         return id;
