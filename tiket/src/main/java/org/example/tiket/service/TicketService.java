@@ -64,7 +64,6 @@ public class TicketService {
             throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
         }
 
-
         String uuid = UUID.randomUUID().toString();
         ticket.setTicketId(uuid);
 
@@ -106,8 +105,6 @@ public class TicketService {
         ticket.setBRLamount(ticketRequestDto.getBrlAmount());
         ticket.setUSDamount(ticketRequestDto.getUsdAmount());
         ticket.setUpdatedAt(LocalDateTime.now());
-        ticket.setDeletedAt(null);
-        ticket.setDeleted(false);
 
         ticket = ticketRepository.save(ticket);
         var dto = TicketMapper.toDto(ticket);
