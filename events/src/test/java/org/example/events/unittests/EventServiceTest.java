@@ -121,9 +121,9 @@ public class EventServiceTest {
     void updateEventWithInvalidIdThrowsException() {
         EventRequestDto entity = event.mockEventCreateDto();
         String id = "uuid";
-        when(repository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new EventNotFoundException("Event with id " + id + " not found"));
+        when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
         Exception exception = assertThrows(RuntimeException.class, () -> {
-            service.update(entity, id); // Deve lançar exceção
+            service.update(entity, id);
         });
 
         assertEquals("Event with id " + id + " not found", exception.getMessage());
@@ -257,8 +257,9 @@ public class EventServiceTest {
     @Test
     void deleteEventWithInvalidIdThrowsException() {
         String id = "uuid";
-        when(repository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new EventNotFoundException("Event with id " + id + " not found"));
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EventNotFoundException.class, () -> {
             service.delete(id);
         });
 
