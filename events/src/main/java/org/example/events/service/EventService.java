@@ -98,10 +98,8 @@ public class EventService {
 
     public EventResponseDto update(EventRequestDto eventCreateDto, String id) {
         logger.info("Updating event");
-        Event event = new Event();
         ViaCep viaCep;
-
-        var old = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> {
+        Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> {
             logger.error("Error while updating event, Event id not found");
             return new EventNotFoundException("Event with id " + id + " not found");
         });
@@ -113,7 +111,6 @@ public class EventService {
             throw new CepNotFoundException("Server could not find cep");
         }
 
-        event.setId(id);
         event.setEventName(eventCreateDto.getEventName());
         event.setDateTime(eventCreateDto.getDateTime());
         event.setCep(eventCreateDto.getCep());
@@ -122,10 +119,7 @@ public class EventService {
         event.setCidade(viaCep.getLocalidade());
         event.setUf(viaCep.getUf());
         event.setLogradouro(viaCep.getLogradouro());
-        event.setCreatedAt(old.getCreatedAt());
         event.setUpdatedAt(LocalDateTime.now());
-        event.setDeletedAt(null);
-        event.setDeleted(false);
 
         event = eventRepository.save(event);
 
