@@ -135,6 +135,7 @@ public class EventService {
     }
 
     public void delete(String id) {
+        logger.info("Deleting event");
         Event event = eventRepository.findByIdAndIsDeletedFalse(id).orElseThrow(() -> {
             logger.error("Error while deleting event, Event id not found");
             return new EventNotFoundException("Event with id " + id + " not found");
