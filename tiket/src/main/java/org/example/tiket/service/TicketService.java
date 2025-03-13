@@ -88,7 +88,7 @@ public class TicketService {
     public TicketResponseDto update(TicketRequestDto ticketRequestDto, String id) {
         logger.info("Updating ticket");
         Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> {
-            logger.error("Error while updating, ticket with id {} not found", id);
+            logger.error("Error while updating, ticket id {} not found", id);
             return new TicketNotFoundException("Ticket with id " + id + " not found");
         });
         Event event;
@@ -118,7 +118,7 @@ public class TicketService {
     public void delete(String id) {
         logger.info("Deleting ticket by id");
         Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> {
-            logger.error("Error while deleting ticket, ticket with id {} not found", id);
+            logger.error("Error while deleting ticket, ticket id not found");
             return new TicketNotFoundException("Ticket with id " + id + " not found");
         });
         ticket.setDeleted(true);

@@ -2,6 +2,7 @@ package org.example.tiket.integration.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import org.example.tiket.dto.TicketRequestDto;
 import org.example.tiket.dto.TicketResponseDto;
 import org.example.tiket.entity.Event;
@@ -115,7 +116,7 @@ public class TicketControllerIT extends AbstractTest {
 
     @Test
     void createTicket_withInvalidEvent_throwsException404() {
-        when(eventService.getEvent(anyString())).thenThrow(new EventNotFoundException("Event not found"));
+        when(eventService.getEvent(anyString())).thenThrow(FeignException.NotFound.class);
 
         TicketRequestDto dto = mockTicket.mockTicketCreateDto();
 
@@ -273,7 +274,7 @@ public class TicketControllerIT extends AbstractTest {
     void getById_withInvalidTicketId_throwsException404() {
         Ticket ticket = mockTicket.mockTicket();
 
-        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket not found"));
+        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
         var response = given()
                 .basePath("api/tickets/v1/get-ticket/" + ticket.getTicketId())
@@ -385,7 +386,7 @@ public class TicketControllerIT extends AbstractTest {
         Ticket old = mockTicket.mockTicket();
 
         when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(old));
-        when(eventService.getEvent(anyString())).thenThrow(new EventNotFoundException("Event not found"));
+        when(eventService.getEvent(anyString())).thenThrow(FeignException.NotFound.class);
 
         var dto = mockTicket.mockTicketCreateDto();
 
@@ -407,7 +408,7 @@ public class TicketControllerIT extends AbstractTest {
     void updateTicket_withInvalidETicketId_throwsException404() {
         Ticket old = mockTicket.mockTicket();
 
-        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket not found"));
+        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
         var dto = mockTicket.mockTicketCreateDto();
 
@@ -544,7 +545,7 @@ public class TicketControllerIT extends AbstractTest {
 
     @Test
     void cancelTicket_withInvalidTicketId_throwsException404() {
-        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("ticket not found"));
+        when(repository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
         given()
                 .basePath("api/tickets/v1/cancel-ticket/"+ "invalid")
                 .port(port)
