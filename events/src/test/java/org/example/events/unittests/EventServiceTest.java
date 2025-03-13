@@ -170,9 +170,9 @@ public class EventServiceTest {
     @Test
     void findEventWithInvalidIdThrowsException() {
         Event entity = event.mockEvent();
-        when(repository.findByIdAndIsDeletedFalse(anyString())).thenThrow( new EventNotFoundException("Event with id " + entity.getId() + " not found"));
+        when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(EventNotFoundException.class, () -> {
            service.findById(entity.getId());
         });
 
@@ -245,7 +245,7 @@ public class EventServiceTest {
         Event entity = event.mockEvent();
 
         when(repository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(entity));
-        when(ticketService.checkTicketsByEventId(anyString())).thenThrow(new TicketsAssociatedWithEventException("There are tickets associated with this event"));
+        when(ticketService.checkTicketsByEventId(anyString())).thenReturn(ticket.mockPagedModelTicket());
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
             service.delete(entity.getId());

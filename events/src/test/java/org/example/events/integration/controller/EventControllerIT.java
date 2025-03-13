@@ -3,6 +3,7 @@ package org.example.events.integration.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import org.example.events.dto.EventRequestDto;
 import org.example.events.entity.Event;
 import org.example.events.entity.ViaCep;
@@ -94,7 +95,7 @@ public class EventControllerIT extends AbstractTest {
 
     @Test
     void testCreteEvent_withInvalidCep_throwsException404() {
-        when(viaCepService.getCepInfo(anyString())).thenThrow(new CepNotFoundException("Server could not find cep"));
+        when(viaCepService.getCepInfo(anyString())).thenThrow(FeignException.NotFound.class);
 
         EventRequestDto requestDto = new MockEvent().mockEventCreateDto();
         given()
@@ -306,10 +307,11 @@ public class EventControllerIT extends AbstractTest {
 
     @Test
     void updateEvent_withInvalidCep_throwsException404() {
-        when(viaCepService.getCepInfo(anyString())).thenThrow(new CepNotFoundException("Server could not find cep"));
+        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(events.get(0)));
+        when(viaCepService.getCepInfo(anyString())).thenThrow(FeignException.NotFound.class);
         Event event = events.get(0);
         EventRequestDto requestDto = new MockEvent().mockEventCreateDto();
-        given()
+        ExceptionResponse ex = given()
                 .basePath("api/events/v1/update-event/"+ event.getId() )
                 .port(port)
                 .contentType(String.valueOf(MediaType.APPLICATION_JSON))
@@ -325,9 +327,7 @@ public class EventControllerIT extends AbstractTest {
 
     @Test
     void updateEvent_withInvalidId_throwsException404() {
-        ViaCep cep = new MockCep().mockViaCep();
-        when(viaCepService.getCepInfo(anyString())).thenReturn(cep);
-        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new CepNotFoundException("Server could not find cep"));
+        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
         EventRequestDto requestDto = new MockEvent().mockEventCreateDto();
         given()
@@ -438,7 +438,7 @@ public class EventControllerIT extends AbstractTest {
     @Test
     void deleteEvent_withInvalidEventId_throwsException404() {
         Event event = events.get(0);
-        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenThrow(new EventNotFoundException("Server could not find event"));
+        when(eventRepository.findByIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
         given()
                 .basePath("api/events/v1/delete-event/" + event.getId())
