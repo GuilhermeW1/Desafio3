@@ -10,6 +10,8 @@ import org.example.tiket.entity.Ticket;
 import org.example.tiket.exceptions.EventNotFoundException;
 import org.example.tiket.exceptions.TicketNotFoundException;
 import org.example.tiket.repository.TicketRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,14 +31,21 @@ public class TicketService {
     @Autowired
     private EventService eventService;
 
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
+
     public TicketResponseDto findById(String id) {
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
+        logger.info("Finding ticket by id: {}", id);
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> {
+            logger.warn("Ticket with id {} not found", id);
+            return new TicketNotFoundException("Ticket with id " + id + " not found");
+        });
         var dto = TicketMapper.toDto(ticket);
         dto.add(linkTo(methodOn(TicketController.class).getTicket(dto.getTicketId())).withSelfRel());
         return dto;
     }
 
     public Page<TicketResponseDto> findByCpf(String cpf, Pageable pageable) {
+        logger.info("Finding tickets by cpf");
         Page<Ticket> tickets = ticketRepository.findByCpfAndIsDeletedFalse(cpf, pageable);
         var dtos = tickets.map(TicketMapper::toDto);
         dtos.map(e -> e.add(linkTo(methodOn(TicketController.class).getTicket(e.getTicketId())).withSelfRel()));
@@ -44,12 +53,14 @@ public class TicketService {
     }
 
     public TicketResponseDto create(TicketRequestDto ticketRequestDto) {
+        logger.info("Creating ticket");
         Ticket ticket = new Ticket();
         Event event;
 
         try {
             event = eventService.getEvent(ticketRequestDto.getEventId());
         } catch (FeignException.NotFound e) {
+            logger.error("Error while creating ticket event with id " + ticketRequestDto.getEventId() + " not found");
             throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
         }
 
@@ -75,11 +86,16 @@ public class TicketService {
     }
 
     public TicketResponseDto update(TicketRequestDto ticketRequestDto, String id) {
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
+        logger.info("Updating ticket");
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> {
+            logger.error("Error while updating, ticket with id {} not found", id);
+            return new TicketNotFoundException("Ticket with id " + id + " not found");
+        });
         Event event;
         try {
             event = eventService.getEvent(ticketRequestDto.getEventId());
-        } catch (Exception e) {
+        } catch (FeignException.NotFound e) {
+            logger.error("Error while updating ticket, event id not found");
             throw new EventNotFoundException("Event with id " + ticketRequestDto.getEventId() + " not found");
         }
 
@@ -100,13 +116,18 @@ public class TicketService {
     }
 
     public void delete(String id) {
-        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> new TicketNotFoundException("Ticket with id " + id + " not found"));
+        logger.info("Deleting ticket by id");
+        Ticket ticket = ticketRepository.findByTicketIdAndIsDeletedFalse(id).orElseThrow(() -> {
+            logger.error("Error while deleting ticket, ticket with id {} not found", id);
+            return new TicketNotFoundException("Ticket with id " + id + " not found");
+        });
         ticket.setDeleted(true);
         ticket.setDeletedAt(LocalDateTime.now());
         ticketRepository.save(ticket);
     }
 
     public Page<TicketResponseDto> findAllByEventId(String eventId, Pageable pageable) {
+        logger.info("Finding all events by event id");
         Page<Ticket> tickets = ticketRepository.findAllByEvent_IdAndIsDeletedFalse(eventId, pageable);
         var dtos = tickets.map(TicketMapper::toDto);
         dtos.map(e -> e.add(linkTo(methodOn(TicketController.class).getTicket(e.getTicketId())).withSelfRel()));

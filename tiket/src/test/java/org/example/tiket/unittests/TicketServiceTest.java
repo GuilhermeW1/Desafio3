@@ -71,9 +71,9 @@ public class TicketServiceTest {
     @Test
     void findById_withInvalidId_ThrowsException404() {
         String id = "uuid";
-        when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket with id " + id + " not found"));
+        when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(TicketNotFoundException.class, () -> {
             ticketService.findById(id);
         });
 
@@ -147,7 +147,7 @@ public class TicketServiceTest {
         String id = "id";
 
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString()))
-                .thenThrow(new TicketNotFoundException("Ticket with id " + id + " not found"));
+                .thenReturn(Optional.empty());
 
         TicketRequestDto dto = input.mockTicketCreateDto();
 
@@ -163,7 +163,7 @@ public class TicketServiceTest {
         Ticket ticket = input.mockTicket();
 
         when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.of(ticket));
-        when(eventService.getEvent(anyString())).thenThrow(new EventNotFoundException("Event with id " + ticket.getEvent().getId() + " not found"));
+        when(eventService.getEvent(anyString())).thenThrow(FeignException.NotFound.class);
         TicketRequestDto dto = input.mockTicketCreateDto();
 
         Exception exception = assertThrows(RuntimeException.class, () -> {
@@ -183,8 +183,8 @@ public class TicketServiceTest {
     @Test
     void delete_withInvalidTicketId_ThrowsException404() {
         Ticket ticket = input.mockTicket();
-        when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenThrow(new TicketNotFoundException("Ticket with id " + ticket.getTicketId() + " not found"));
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        when(ticketRepository.findByTicketIdAndIsDeletedFalse(anyString())).thenReturn(Optional.empty());
+        Exception exception = assertThrows(TicketNotFoundException.class, () -> {
             ticketService.delete(ticket.getTicketId());
         });
 
