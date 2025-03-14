@@ -104,5 +104,25 @@ mvn test
 - The microservices use **Feign Clients** for internal communication.
 - Logs have been added for monitoring key operations.
 
+---
 
+## AWS Configuration
+
+In AWS, I created a **VPC (Virtual Private Cloud)** and a **security group**, allowing inbound traffic on ports **8080, 80, and 443** (standard internet ports). Additionally, I enabled **port 22** for SSH access.
+
+I launched **two EC2 instances** and configured them to use the **VPC** and the **security group**.
+
+Next, I built my application using **Docker** and pushed the images to **Docker Hub**.  
+Then, I connected to my instances via **SSH**, installed **Docker**, and pulled the images from **Docker Hub**.
+
+- The applications communicate internally within the VPC, allowing both to run on **port 8080** without conflicts.
+- The **Events** service points to the internal IP of the **Tickets** service.
+- The **Tickets** service points to the internal IP of the **Events** service.
+
+### Internal Endpoints
+
+The API endpoints remain the same, but the base URLs differ:
+
+- **Events Service:** `http://10.0.17.142:8080/api/events/v1`
+- **Tickets Service:** `http://10.0.21.226:8080/api/tickets/v1`  
 
