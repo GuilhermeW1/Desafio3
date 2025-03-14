@@ -26,7 +26,7 @@ public class MockTicket {
         ticket.setEvent(EVENT);
         ticket.setBRLamount(BRL_AMOUNT);
         ticket.setUSDamount(USD_AMOUNT);
-        ticket.setStatus("CREATED");
+        ticket.setStatus("COMPLETED");
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(null);
         ticket.setDeleted(false);
@@ -59,7 +59,7 @@ public class MockTicket {
             ticket.setEvent(EVENT);
             ticket.setBRLamount(BRL_AMOUNT + i);
             ticket.setUSDamount(USD_AMOUNT + i);
-            ticket.setStatus("CREATED");
+            ticket.setStatus("COMPLETED");
 
             tickets.add(ticket);
         }

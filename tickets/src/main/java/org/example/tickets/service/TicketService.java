@@ -77,7 +77,7 @@ public class TicketService {
         ticket.setUpdatedAt(null);
         ticket.setDeletedAt(null);
         ticket.setDeleted(false);
-        ticket.setStatus("CREATED");
+        ticket.setStatus("COMPLETED");
         ticket = ticketRepository.save(ticket);
         var dto = TicketMapper.toDto(ticket);
         dto.add(linkTo(methodOn(TicketController.class).getTicket(dto.getTicketId())).withSelfRel());

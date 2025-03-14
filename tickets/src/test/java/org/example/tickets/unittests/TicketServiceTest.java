@@ -98,7 +98,7 @@ public class TicketServiceTest {
         assertEquals(result.getCustomerMail(), ticket.getCustomerMail());
         assertEquals(result.getBRLamount(), 50.00);
         assertEquals(result.getUSDamount(), 20.00);
-        assertEquals(result.getStatus(), "CREATED");
+        assertEquals(result.getStatus(), "COMPLETED");
     }
 
     @Test
